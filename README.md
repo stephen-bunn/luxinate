@@ -1,4 +1,3 @@
-luxinate
-========
+Luxinate
 
-[Python] Alfred 2 extension/automation of "youtube-dl" and "ffmpeg"
+Alfred 2 extension/automation of "youtube-dl" and "ffmpeg"

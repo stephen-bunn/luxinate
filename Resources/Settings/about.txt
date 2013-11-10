@@ -1,0 +1,48 @@
+Luxinate - Download online streamed media
+
+About:
+	
+	- Author:  Ritashugisha
+	- Contact: ritashugisha@gmail.com
+	- Version: 3.4.1
+
+Luxinate utilizes youtube-dl, ffmpeg, terminal-notifier, and 
+cocoadialog in an Alfred-2 workflow. This workflow allows the 
+user to download video and audio from popular media sites.
+
+Although youtube-dl's list of media extractors are vast, 
+working sites are listed below:
+	
+	- YouTube
+	- SoundCloud
+	- and others... 
+
+Current Features:
+	
+	- Lux 
+		This option allows the user to input a URL to
+		a YouTube video or a SoundCloud track and
+		download the media as video or audio.
+	
+	- LuxSafari 
+		This option allows the user to scan the current
+		open tabs of the user’s safari browser and select
+		the open media they wish to download.
+	
+	- LuxChrome 
+		Same as LuxSafari, but with Chrome.
+
+	- LuxYouTube 
+		Allows the user to query YouTube directly by title
+		and either download the media or open the url.
+		(Thanks to Simon Storving for the base query code)
+
+	- LuxPlaylist 
+		Allows the user to enter the url of a playlist on
+		YouTube, and then download the entire playlist’s 
+		video or audio.
+
+	- LuxSettings
+		Opens an option panel including options that customize
+		the user interaction and advanced settings of
+		Luxinate.
