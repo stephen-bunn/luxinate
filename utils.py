@@ -57,7 +57,7 @@ def formatConsole(string):
 # Program wide variables
 AUTHOR            = 'Ritashugisha'
 CONTACT           = 'ritashugisha@gmail.com'
-VERSION           = '3.4.1'
+VERSION           = '3.5.1'
 TITLE             = 'Luxinate'
 CURRENT_PATH      = os.path.dirname(os.path.abspath(__file__))
 TEMPORARY         = '/tmp/luxinate_temporary'
