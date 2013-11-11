@@ -35,8 +35,9 @@ def advancedDownloadVideo(node, query, extension, filename, mediaTitle, extraOpt
         os.system('mkdir %s' % utils.DOWNLOADS)
     utils.writeHistory(query)
     utils.displayNotification(utils.TITLE, mediaTitle, '► Downloading Video', 'open %s' % utils.DOWNLOADS)
-    utils.runProcess(downloadVideoCmd)
+    download = utils.runProcess(downloadVideoCmd)
     utils.displayNotification(utils.TITLE, mediaTitle, 'Download Complete', 'open %s' % utils.DOWNLOADS)
+    utils.sendDiagnostics('advancedDownloadVideo', downloadVideoCmd, '', download)
     
 
 # Advanced download audio    
@@ -51,8 +52,9 @@ def advancedDownloadAudio(node, query, extension, filename, mediaTitle, extraOpt
         os.system('mkdir %s' % utils.DOWNLOADS)
     utils.writeHistory(query)
     utils.displayNotification(utils.TITLE, mediaTitle, '► Downloading Audio', 'open %s' % utils.DOWNLOADS)
-    utils.runProcess(downloadAudioCmd)
-    utils.runProcess(convertAudioCmd)
+    download = utils.runProcess(downloadAudioCmd)
+    convert = utils.runProcess(convertAudioCmd)
     os.system('rm -rf %s' % utils.TEMPORARY)
     utils.displayNotification(utils.TITLE, mediaTitle, 'Download Complete', 'open %s' % utils.DOWNLOADS)
+    utils.sendDiagnostics('advancedDownloadAudio', downloadAudioCmd, convertAudioCmd, download)    
         

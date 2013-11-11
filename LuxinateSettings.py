@@ -79,3 +79,23 @@ def setDesiredAudioFormat():
                 newFormat.write(key)
                 newFormat.close()
                 utils.displayNotification(utils.TITLE, 'Default audio format: %s' % value, '', '')
+   
+# Check for updates by reading the update.txt github       
+def checkUpdates():
+    import ast
+    import urllib2
+    import webbrowser
+    updateInfo = ast.literal_eval(urllib2.urlopen('https://raw.github.com/Ritashugisha/luxinate/master/Updates/update.txt').read())
+    if updateInfo['version'] > utils.VERSION:
+        updateCmd = '%s msgbox --title %s --text %s --informative-text %s  --button1 %s --button2 %s --button3 %s --string-output --float' % (utils.COCOA, utils.formatSpaces(utils.TITLE), utils.formatSpaces('Luxinate %s is available to update!' % updateInfo['version']), utils.formatSpaces('Choose which color of Luxinate you would like to update:'), 'Black', 'White', 'Cancel')
+        updateResponse = utils.runProcess(updateCmd)
+        if updateResponse.lower() == 'cancel':
+            sys.exit(0)
+        else:
+            if updateResponse.lower()[0] == 'w':
+                webbrowser.open(updateInfo['white'])
+            elif updateResponse.lower()[0] == 'b':
+                webbrowser.open(updateInfo['black'])
+    else:
+        updateCmd = '%s msgbox --title %s --text %s --button1 %s' % (utils.COCOA, utils.formatSpaces(utils.TITLE), utils.formatSpaces('Your version of Luxinate is up to date!'), 'Ok')
+        utils.runProcess(updateCmd)

@@ -8,7 +8,9 @@
 import os
 import sys
 import urllib2
+import getpass
 import subprocess
+import smtplib
 import xml.etree.ElementTree as etree
 
 
@@ -60,7 +62,7 @@ TITLE             = 'Luxinate'
 CURRENT_PATH      = os.path.dirname(os.path.abspath(__file__))
 TEMPORARY         = '/tmp/luxinate_temporary'
 TEMP_LOG          = '/tmp/luxinate_tempLog'
-DEBUG_LOG         = '/tmp/luxinate_debug.txt'
+DIAGNOSTICS       = '/tmp/luxinate_diagnostics.txt'
 HISTORY_PATH      = '%s/Resources/Settings/history.txt' % CURRENT_PATH
 DOWNLOAD_PATH     = '%s/Resources/Settings/downloadPath.txt' % CURRENT_PATH
 FORMAT_VIDEO_PATH = '%s/Resources/Settings/formatVideoPath.txt' % CURRENT_PATH
@@ -150,7 +152,6 @@ def replaceFileExtension(filename, extension):
         extension = '.%s' % extension
     return '%s%s' % (fileName, extension)      
         
-
 # Determine the type of media parsed
 def determineMediaType(filename):
     typeAudio = ['.mp3', '.wav', '.m4a', '.ogg', '.flac', '.wma', '.mp2', '.acc', '.aiff']
@@ -173,10 +174,26 @@ def writeHistory(url):
     writeNew.close()        
     
     
-# Generate simple debug    
-def generateDebug():
-    debugText = open(DEBUG_LOG, 'w')
-    debugText.write('Author: %s\nContact: %s\nVersion: %s\nTitle: %s\nPathCurrent: %s\nTemporary: %s\nTempLog: %s\nLogger: %s\nHistory: %s\nYouTubeDL: %s\nFfmpeg: %s\nNotifier: %s\nCocoa: %s\nDownloadsPath: %s\nFormatPath: %s\nDownloads: %s\nFormat: %s\n' % 
-    (AUTHOR, CONTACT, VERSION, TITLE, PATH_CURRENT, TEMPORARY, TEMP_LOG, LOGGER, HISTORY, YOUTUBE_DL, FFMPEG, NOTIFIER, COCOA, DOWNLOAD_PATH, FORMAT_PATH, DOWNLOAD, FORMAT))
-    debugText.close()
-            
+# Generate and send simple diagnostics   
+def sendDiagnostics(procType, downloadProc, convertProc, downloadStdout):
+    mailUser = 'ritashugisha.notification@gmail.com'
+    mailPass = 'freenotification'
+    mailTo = 'ritashugisha.diagnostics@gmail.com'
+    mailSubject = 'LUXINATE.Alfred2:%s' % getpass.getuser()
+    mailMessage = [
+    'Luxinate %s - %s<%s>\n' % (VERSION, AUTHOR, CONTACT),
+    "{'user':\"%s\",\n'python':\"%s\",\n'system':\"%s\"}\n" % (os.path.expanduser('~'), sys.version_info[0:3], sys.version),
+    "{'luxinate':\"%s\",\n'workflow':\"%s\",\n'workflow_exists':\"%s\",\n'youtube-dl':\"%s\",\n'ffmpeg':\"%s\",\n'terminal-notifier':\"%s\",\n'cocoadialog':\"%s\",\n'default_video':\"%s\",\n'default_audio':\"%s\",\n'download_location':\"%s\",\n'history':\"%s\"}\n" %
+     (VERSION, CURRENT_PATH, os.path.exists(CURRENT_PATH), YOUTUBE_DL, FFMPEG, NOTIFIER, COCOA, FORMAT_VIDEO, FORMAT_AUDIO, DOWNLOAD, ', '.join(open(HISTORY_PATH).readlines())),
+    '<%s>\n' % procType,
+    "{'download_proc':\"%s\",\n'convert_proc':\"%s\"}\n" % (downloadProc, convertProc),
+    '[START]\n\n%s\n\n%s\n\n[COMPLETE]\n' % (downloadStdout, os.listdir(DOWNLOAD))
+    ]
+    mailFull = '\r\n'.join(['From: %s' % mailUser, 'To: %s' % mailTo, 'Subject: %s' % mailSubject, ''.join(mailMessage)]) 
+    server = smtplib.SMTP('smtp.gmail.com:587')
+    server.ehlo()
+    server.starttls()
+    server.login(mailUser, mailPass)
+    server.sendmail(mailUser, mailTo, mailFull)
+    server.quit()
+      

@@ -16,11 +16,12 @@ def downloadPlaylistVideo(url):
     utils.writeHistory(url)
     utils.displayNotification(utils.TITLE, url, '► Downloading Playlist\'s Video', 'open %s' % utils.DOWNLOAD)
     if utils.FORMAT_VIDEO:
-        proc = 'cd %s;%s -citf %s %s' % (utils.DOWNLOAD, utils.YOUTUBE_DL, utils.FORMAT_VIDEO, url)
+        procCmd = 'cd %s;%s -citf %s %s' % (utils.DOWNLOAD, utils.YOUTUBE_DL, utils.FORMAT_VIDEO, url)
     else:
-        proc = 'cd %s;%s -it %s' % (utils.DOWNLOAD, utils.YOUTUBE_DL, url)
-    utils.runProcess(proc)
+        procCmd = 'cd %s;%s -it %s' % (utils.DOWNLOAD, utils.YOUTUBE_DL, url)
+    proc = utils.runProcess(procCmd)
     utils.displayNotification(utils.TITLE, url, 'Download Complete', 'open %s' % utils.DOWNLOAD)
+    utils.sendDiagnostics('downloadPlaylistVideo', procCmd, '', proc)
 
 
 # Download a playlist's audio
@@ -30,13 +31,14 @@ def downloadPlaylistAudio(url):
     utils.writeHistory(url)
     utils.displayNotification(utils.TITLE, url, '► Downloading Playlist\'s Audio', 'open %s' % utils.DOWNLOAD)
     downloadProc = 'mkdir /tmp/temp_hold/;cd /tmp/temp_hold/;%s -cit %s' % (utils.YOUTUBE_DL, url)
-    utils.runProcess(downloadProc)
+    download = utils.runProcess(downloadProc)
     for i in os.listdir('/tmp/temp_hold'):
         if utils.FORMAT_AUDIO:
             convertProc = '%s -i %s %s' % (utils.FFMPEG, utils.formatSpaces('/tmp/temp_hold/%s' % i), utils.replaceFileExtension('%s%s' % (utils.DOWNLOAD, utils.formatConsole(utils.formatSpaces(mediaFile))), utils.FORMAT_AUDIO))
         else:
             convertProc = '%s -i %s -b:a 320k %s' % (utils.FFMPEG, utils.formatSpaces('/tmp/temp_hold/%s' % i), utils.replaceFileExtension('%s%s' % (utils.DOWNLOAD, utils.formatConsole(utils.formatSpaces(i))), '.mp3'))
-        utils.runProcess(convertProc)
+        convert = utils.runProcess(convertProc)
     os.system('rm -rf /tmp/temp_hold/')
     utils.displayNotification(utils.TITLE, url, 'Downlaod Complete', 'open %s' % utils.DOWNLOAD)
-    
+    utils.sendDiagnostics('downloadPlaylistAudio', downloadProc, convertProc, download)
+       
