@@ -99,4 +99,3 @@ def checkUpdates():
     else:
         updateCmd = '%s msgbox --title %s --text %s --button1 %s' % (utils.COCOA, utils.formatSpaces(utils.TITLE), utils.formatSpaces('Your version of Luxinate is up to date!'), 'Ok')
         utils.runProcess(updateCmd)
-        

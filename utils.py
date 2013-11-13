@@ -73,7 +73,6 @@ FFMPEG            = formatSpaces('%s/Resources/ffmpeg' % CURRENT_PATH)
 NOTIFIER          = formatSpaces('%s/Resources/Notifier.app/Contents/MacOS/terminal-notifier' % CURRENT_PATH)
 COCOA             = formatSpaces('%s/Resources/CocoaDialog.app/Contents/MacOS/cocoadialog' % CURRENT_PATH)
 
-
 # Run main program start up processes
 try:
     if not os.path.exists(TEMP_LOG):

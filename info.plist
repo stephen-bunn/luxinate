@@ -1,0 +1,989 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>bundleid</key>
+	<string>com.Ritashugisha.Luxinate.White</string>
+	<key>connections</key>
+	<dict>
+		<key>180032C4-B80C-4E23-B00D-6DBFDEBACF93</key>
+		<array>
+			<dict>
+				<key>destinationuid</key>
+				<string>031DC4AB-CFFA-4FD8-8AA0-445E13F53754</string>
+				<key>modifiers</key>
+				<integer>0</integer>
+				<key>modifiersubtext</key>
+				<string></string>
+			</dict>
+		</array>
+		<key>188E361E-49AB-46F7-903F-4459E84AE1FF</key>
+		<array>
+			<dict>
+				<key>destinationuid</key>
+				<string>6E0C7451-CB76-45E2-AB7A-2716A397C12F</string>
+				<key>modifiers</key>
+				<integer>0</integer>
+				<key>modifiersubtext</key>
+				<string></string>
+			</dict>
+		</array>
+		<key>26EA6861-0D37-4055-A639-243B80E4130F</key>
+		<array>
+			<dict>
+				<key>destinationuid</key>
+				<string>EABCF95D-AE25-4C89-8F4C-7BB11631DDAA</string>
+				<key>modifiers</key>
+				<integer>1048576</integer>
+				<key>modifiersubtext</key>
+				<string>Open in default browser</string>
+			</dict>
+			<dict>
+				<key>destinationuid</key>
+				<string>188E361E-49AB-46F7-903F-4459E84AE1FF</string>
+				<key>modifiers</key>
+				<integer>0</integer>
+				<key>modifiersubtext</key>
+				<string></string>
+			</dict>
+		</array>
+		<key>5A3B67E3-17B9-4BD6-BB26-C42DDA532563</key>
+		<array>
+			<dict>
+				<key>destinationuid</key>
+				<string>E9C8699A-7ACF-42B4-9FB4-CF091071C152</string>
+				<key>modifiers</key>
+				<integer>0</integer>
+				<key>modifiersubtext</key>
+				<string></string>
+			</dict>
+		</array>
+		<key>648B9966-9750-4141-917C-6AF1F11ADCCC</key>
+		<array>
+			<dict>
+				<key>destinationuid</key>
+				<string>87CC6112-5166-44AF-A2B2-AEF1A820B290</string>
+				<key>modifiers</key>
+				<integer>0</integer>
+				<key>modifiersubtext</key>
+				<string></string>
+			</dict>
+		</array>
+		<key>73C69D0E-7CA6-4324-9F08-735D4F5ED2E3</key>
+		<array>
+			<dict>
+				<key>destinationuid</key>
+				<string>8BBE9D23-2720-4F90-9DB2-E66EA5A98B84</string>
+				<key>modifiers</key>
+				<integer>0</integer>
+				<key>modifiersubtext</key>
+				<string></string>
+			</dict>
+		</array>
+		<key>87CC6112-5166-44AF-A2B2-AEF1A820B290</key>
+		<array/>
+		<key>8BBE9D23-2720-4F90-9DB2-E66EA5A98B84</key>
+		<array/>
+		<key>9F82F9D3-77D8-4808-8A4F-B6AF8B78C0C7</key>
+		<array>
+			<dict>
+				<key>destinationuid</key>
+				<string>E228F65A-91AC-4DED-AE62-2010C6DEDB51</string>
+				<key>modifiers</key>
+				<integer>0</integer>
+				<key>modifiersubtext</key>
+				<string></string>
+			</dict>
+			<dict>
+				<key>destinationuid</key>
+				<string>180032C4-B80C-4E23-B00D-6DBFDEBACF93</string>
+				<key>modifiers</key>
+				<integer>1048576</integer>
+				<key>modifiersubtext</key>
+				<string>Advanced Luxinate</string>
+			</dict>
+		</array>
+		<key>A52A9B24-5910-40FC-AE41-49094D706A84</key>
+		<array>
+			<dict>
+				<key>destinationuid</key>
+				<string>E228F65A-91AC-4DED-AE62-2010C6DEDB51</string>
+				<key>modifiers</key>
+				<integer>0</integer>
+				<key>modifiersubtext</key>
+				<string></string>
+			</dict>
+			<dict>
+				<key>destinationuid</key>
+				<string>180032C4-B80C-4E23-B00D-6DBFDEBACF93</string>
+				<key>modifiers</key>
+				<integer>1048576</integer>
+				<key>modifiersubtext</key>
+				<string>Advanced Luxinate</string>
+			</dict>
+		</array>
+		<key>C9CFA0B3-D70E-4DE4-BA0B-40F278150393</key>
+		<array>
+			<dict>
+				<key>destinationuid</key>
+				<string>128C7403-8B8A-4486-90B5-EBD47F012CC2</string>
+				<key>modifiers</key>
+				<integer>0</integer>
+				<key>modifiersubtext</key>
+				<string></string>
+			</dict>
+			<dict>
+				<key>destinationuid</key>
+				<string>86785098-CABA-454C-9CF7-5E2E8B782CDA</string>
+				<key>modifiers</key>
+				<integer>1048576</integer>
+				<key>modifiersubtext</key>
+				<string>Open in default browser</string>
+			</dict>
+		</array>
+		<key>CBFF43A9-ED92-4C37-AB8D-6EE91345968A</key>
+		<array>
+			<dict>
+				<key>destinationuid</key>
+				<string>E228F65A-91AC-4DED-AE62-2010C6DEDB51</string>
+				<key>modifiers</key>
+				<integer>0</integer>
+				<key>modifiersubtext</key>
+				<string></string>
+			</dict>
+			<dict>
+				<key>destinationuid</key>
+				<string>180032C4-B80C-4E23-B00D-6DBFDEBACF93</string>
+				<key>modifiers</key>
+				<integer>1048576</integer>
+				<key>modifiersubtext</key>
+				<string>Advanced Luxinate</string>
+			</dict>
+		</array>
+		<key>E228F65A-91AC-4DED-AE62-2010C6DEDB51</key>
+		<array/>
+	</dict>
+	<key>createdby</key>
+	<string>Ritashugisha</string>
+	<key>description</key>
+	<string>Download streamed media</string>
+	<key>disabled</key>
+	<false/>
+	<key>name</key>
+	<string>Luxinate White</string>
+	<key>objects</key>
+	<array>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>argumenttype</key>
+				<integer>0</integer>
+				<key>escaping</key>
+				<integer>63</integer>
+				<key>keyword</key>
+				<string>lux ►</string>
+				<key>runningsubtext</key>
+				<string>Loading...</string>
+				<key>script</key>
+				<string># @author:  Ritashugisha
+# @contact: ritashugisha@gmail.com
+
+import utils
+runningFlag = True
+
+while runningFlag:
+    q = '{query}'
+    f = utils.Feedback()
+    try:
+        (mediaTitle, mediaFile) = utils.getMediaInfo(q)
+    except ValueError:
+        continue
+    if utils.determineMediaType(mediaFile) == 1:
+        f.add_item('Download Video', mediaTitle, "{'node':%s,'url':\'%s\','title':\'%s\','file':\'%s\'}" % ('1', q, mediaTitle.replace("'",'').replace('"',''), mediaFile.replace("'",'').replace('"','')), '', '', 'Icons/_video.png')
+        f.add_item('Download Audio', mediaTitle, "{'node':%s,'url':\'%s\','title':\'%s\','file':\'%s\'}" % ('2', q, mediaTitle.replace("'",'').replace('"',''), mediaFile.replace("'",'').replace('"','')), '', '', 'Icons/_audio.png')
+        f.add_item('Download Video and Audio', mediaTitle, "{'node':%s,'url':\'%s\','title':\'%s\','file':\'%s\'}" % ('3', q, mediaTitle.replace("'",'').replace('"',''), mediaFile.replace("'",'').replace('"','')), '', '', 'Icons/_both.png')
+        runningFlag = False	
+    
+    elif utils.determineMediaType(mediaFile) == 2:
+        f.add_item('Download Audio', mediaTitle, "{'node':%s,'url':\'%s\','title':\'%s\','file':\'%s\'}" % ('2', q, mediaTitle.replace("'",'').replace('"',''), mediaFile.replace("'",'').replace('"','')), '', '', 'Icons/_audio.png')
+        runningFlag = False
+    else:
+        pass
+
+print f</string>
+				<key>subtext</key>
+				<string>Enter URL</string>
+				<key>title</key>
+				<string>Luxinate</string>
+				<key>type</key>
+				<integer>3</integer>
+				<key>withspace</key>
+				<true/>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.input.scriptfilter</string>
+			<key>uid</key>
+			<string>9F82F9D3-77D8-4808-8A4F-B6AF8B78C0C7</string>
+			<key>version</key>
+			<integer>0</integer>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>escaping</key>
+				<integer>59</integer>
+				<key>script</key>
+				<string># @author:  Ritashugisha
+# @contact: ritashugisha@gmail.com
+
+import LuxinateNormal
+
+q = {query}
+if q['node'] == 1:
+	LuxinateNormal.downloadVideo(q['url'])
+if q['node'] == 2:
+	LuxinateNormal.downloadAudio(q['url'])
+if q['node'] == 3:
+	LuxinateNormal.downloadVideo_Audio(q['url'])</string>
+				<key>type</key>
+				<integer>3</integer>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.action.script</string>
+			<key>uid</key>
+			<string>E228F65A-91AC-4DED-AE62-2010C6DEDB51</string>
+			<key>version</key>
+			<integer>0</integer>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>argumenttype</key>
+				<integer>0</integer>
+				<key>escaping</key>
+				<integer>63</integer>
+				<key>keyword</key>
+				<string>luxsafari ►</string>
+				<key>runningsubtext</key>
+				<string>Loading...</string>
+				<key>script</key>
+				<string># @author:  Ritashugisha
+# @contact: ritashugisha@gmail.com
+
+import subprocess
+import utils
+
+q = '{query}'
+if q[0].lower() == 'v':
+    arg = 1
+elif q[0].lower() == 'a':
+    arg = 2
+else:
+    arg = 3
+
+osaCmd = "osascript -e 'tell application \"Safari\" to get URL of every Tab of every Window'"
+osaProc = subprocess.Popen([osaCmd], stdout = subprocess.PIPE, shell = True)
+(osaProc, osaProc_e) = osaProc.communicate()
+availableUrls = osaProc.replace('\n', '').split(', ')
+f = utils.Feedback()
+for i in availableUrls:
+    try:
+        (mediaTitle, mediaFile) = utils.getMediaInfo(i)
+        if arg == 1 and utils.determineMediaType(mediaFile) == 1:
+            f.add_item(mediaTitle, i, "{'node':%s,'url':'%s','title':'%s','file':'%s'}" % ('1', i, mediaTitle, mediaFile), '', '', 'Icons/_download.png')
+        if arg == 2 and utils.determineMediaType(mediaFile) == 2:
+            f.add_item(mediaTitle, i, "{'node':%s,'url':'%s','title':'%s','file':'%s'}" % ('2', i, mediaTitle, mediaFile), '', '', 'Icons/_download.png')
+    except ValueError:
+        pass
+print f</string>
+				<key>subtext</key>
+				<string>Enter "video" or "audio" to download respectively</string>
+				<key>title</key>
+				<string>Luxinate Safari</string>
+				<key>type</key>
+				<integer>3</integer>
+				<key>withspace</key>
+				<true/>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.input.scriptfilter</string>
+			<key>uid</key>
+			<string>CBFF43A9-ED92-4C37-AB8D-6EE91345968A</string>
+			<key>version</key>
+			<integer>0</integer>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>escaping</key>
+				<integer>63</integer>
+				<key>script</key>
+				<string># @author:  Ritashugisha
+# @contact: ritashugisha@gmail.com
+
+import utils
+
+q = "{query}".replace('\ ',' ').replace('\(','(').replace('\)',')')
+bump = open(utils.TEMP_LOG, 'w')
+bump.write(q)
+bump.close</string>
+				<key>type</key>
+				<integer>3</integer>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.action.script</string>
+			<key>uid</key>
+			<string>180032C4-B80C-4E23-B00D-6DBFDEBACF93</string>
+			<key>version</key>
+			<integer>0</integer>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>escaping</key>
+				<integer>63</integer>
+				<key>script</key>
+				<string>tell application "Alfred 2" to search "► luxadvanced"</string>
+				<key>type</key>
+				<integer>6</integer>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.output.script</string>
+			<key>uid</key>
+			<string>031DC4AB-CFFA-4FD8-8AA0-445E13F53754</string>
+			<key>version</key>
+			<integer>0</integer>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>argumenttype</key>
+				<integer>0</integer>
+				<key>escaping</key>
+				<integer>127</integer>
+				<key>keyword</key>
+				<string>luxchrome ►</string>
+				<key>runningsubtext</key>
+				<string>Loading...</string>
+				<key>script</key>
+				<string># @author:  Ritashugisha
+# @contact: ritashugisha@gmail.com
+
+import subprocess
+import utils
+
+q = '{query}'
+if q[0].lower() == 'v':
+    arg = 1
+elif q[0].lower() == 'a':
+    arg = 2
+else:
+    arg = 3
+
+osaCmd = "osascript -e 'tell application \"Chrome\" to get URL of every Tab of every Window'"
+osaProc = subprocess.Popen([osaCmd], stdout = subprocess.PIPE, shell = True)
+(osaProc, osaProc_e) = osaProc.communicate()
+availableUrls = osaProc.replace('\n', '').split(', ')
+f = utils.Feedback()
+for i in availableUrls:
+    try:
+        (mediaTitle, mediaFile) = utils.getMediaInfo(i)
+        if arg == 1 and utils.determineMediaType(mediaFile) == 1:
+            f.add_item(mediaTitle, i, "{'node':%s,'url':'%s','title':'%s','file':'%s'}" % ('1', i, mediaTitle, mediaFile), '', '', 'Icons/_download.png')
+        if arg == 2 and utils.determineMediaType(mediaFile) == 2:
+            f.add_item(mediaTitle, i, "{'node':%s,'url':'%s','title':'%s','file':'%s'}" % ('2', i, mediaTitle, mediaFile), '', '', 'Icons/_download.png')
+    except ValueError:
+        pass
+print f</string>
+				<key>subtext</key>
+				<string>Enter "video" or "audio" to download respectively</string>
+				<key>title</key>
+				<string>Luxinate Chrome</string>
+				<key>type</key>
+				<integer>3</integer>
+				<key>withspace</key>
+				<true/>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.input.scriptfilter</string>
+			<key>uid</key>
+			<string>A52A9B24-5910-40FC-AE41-49094D706A84</string>
+			<key>version</key>
+			<integer>0</integer>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>escaping</key>
+				<integer>63</integer>
+				<key>script</key>
+				<string>import soundcloud 
+import webbrowser
+client = soundcloud.Client(client_id = 'd41555ed08885c41508d9aa7bc9c25b9')
+query = '{query}'
+queryList = query.split('|?|')
+userId = queryList[0]
+permalink = queryList[1]
+artist = client.get('/users/' + userId)
+theUrl = "http://www.soundcloud.com/" + artist.permalink + '/' + permalink
+webbrowser.open(theUrl)</string>
+				<key>type</key>
+				<integer>3</integer>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.action.script</string>
+			<key>uid</key>
+			<string>EABCF95D-AE25-4C89-8F4C-7BB11631DDAA</string>
+			<key>version</key>
+			<integer>0</integer>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>argumenttype</key>
+				<integer>0</integer>
+				<key>escaping</key>
+				<integer>63</integer>
+				<key>keyword</key>
+				<string>luxsoundcloud ►</string>
+				<key>runningsubtext</key>
+				<string>Searching {query}...</string>
+				<key>script</key>
+				<string>import soundcloud
+import utils
+
+client = soundcloud.Client(client_id = 'd41555ed08885c41508d9aa7bc9c25b9')
+feed = utils.Feedback()
+tracks = client.get('/tracks', q = '{query}', limit = 9)
+for i in tracks:
+    iQuery = '%s|?|%s|?|%s' % (str(i.user_id), i.permalink, i.title)
+    feed.add_item(i.title, i.permalink, iQuery, '', '', 'Icons/_download.png')
+print feed
+</string>
+				<key>subtext</key>
+				<string>Enter query to search SoundCloud</string>
+				<key>title</key>
+				<string>Luxinate SoundCloud</string>
+				<key>type</key>
+				<integer>3</integer>
+				<key>withspace</key>
+				<true/>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.input.scriptfilter</string>
+			<key>uid</key>
+			<string>26EA6861-0D37-4055-A639-243B80E4130F</string>
+			<key>version</key>
+			<integer>0</integer>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>escaping</key>
+				<integer>63</integer>
+				<key>script</key>
+				<string>#!/usr/bin/env python
+#-*- coding:UTF-8 -*-
+import soundcloud 
+import utils
+import sys
+client = soundcloud.Client(client_id = 'd41555ed08885c41508d9aa7bc9c25b9')
+query = '{query}'
+queryList = query.split('|?|')
+userId = queryList[0]
+permalink = queryList[1]
+artist = client.get('/users/' + userId)
+theUrl = "http://www.soundcloud.com/" + artist.permalink + '/' + permalink
+sys.stdout.write(theUrl)</string>
+				<key>type</key>
+				<integer>3</integer>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.action.script</string>
+			<key>uid</key>
+			<string>188E361E-49AB-46F7-903F-4459E84AE1FF</string>
+			<key>version</key>
+			<integer>0</integer>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>escaping</key>
+				<integer>63</integer>
+				<key>script</key>
+				<string>tell application "Alfred 2" to search "lux ► " &amp; "{query}"</string>
+				<key>type</key>
+				<integer>6</integer>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.output.script</string>
+			<key>uid</key>
+			<string>6E0C7451-CB76-45E2-AB7A-2716A397C12F</string>
+			<key>version</key>
+			<integer>0</integer>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>argumenttype</key>
+				<integer>0</integer>
+				<key>escaping</key>
+				<integer>63</integer>
+				<key>keyword</key>
+				<string>luxyoutube ►</string>
+				<key>runningsubtext</key>
+				<string>Searching {query}...</string>
+				<key>script</key>
+				<string>#!/usr/bin/env python
+#-*- coding:UTF-8 -*-
+#
+# @author:  Ritashugisha
+# @contact: ritashugisha@gmail.com
+# @version: 1.1a
+
+import LuxinateYouTube
+
+q = '{query}'
+print LuxinateYouTube.searchVideos(q)</string>
+				<key>subtext</key>
+				<string>Enter query to search YouTube</string>
+				<key>title</key>
+				<string>Luxinate YouTube</string>
+				<key>type</key>
+				<integer>3</integer>
+				<key>withspace</key>
+				<true/>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.input.scriptfilter</string>
+			<key>uid</key>
+			<string>C9CFA0B3-D70E-4DE4-BA0B-40F278150393</string>
+			<key>version</key>
+			<integer>0</integer>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>escaping</key>
+				<integer>63</integer>
+				<key>script</key>
+				<string>tell application "Alfred 2" to search "lux ► " &amp; "{query}"</string>
+				<key>type</key>
+				<integer>6</integer>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.action.script</string>
+			<key>uid</key>
+			<string>128C7403-8B8A-4486-90B5-EBD47F012CC2</string>
+			<key>version</key>
+			<integer>0</integer>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>plusspaces</key>
+				<false/>
+				<key>url</key>
+				<string>{query}</string>
+				<key>utf8</key>
+				<true/>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.action.openurl</string>
+			<key>uid</key>
+			<string>86785098-CABA-454C-9CF7-5E2E8B782CDA</string>
+			<key>version</key>
+			<integer>0</integer>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>argumenttype</key>
+				<integer>0</integer>
+				<key>escaping</key>
+				<integer>63</integer>
+				<key>keyword</key>
+				<string>luxplayist ►</string>
+				<key>runningsubtext</key>
+				<string>Validating...</string>
+				<key>script</key>
+				<string>#!/usr/bin/env python
+#-*- coding:UTF-8 -*-
+#
+# @author:  Ritashugisha
+# @contact: ritashugisha@gmail.com
+# @version: 1.1a
+
+import utils
+q = '{query}'
+f = utils.Feedback()
+if utils.validateUrl(q) and 'playlist?list' in q:
+    f.add_item('Download Playlist Video', q, "{'node':%s,'url':\'%s\'}" % ('1', q), '', '', 'Icons/_playlist.png')
+    f.add_item('Download Playlist Audio', q, "{'node':%s, 'url':\'%s\'}" % ('2', q), '', '', 'Icons/_playlist.png')
+else:
+    f.add_item('No Download', 'Invalid playlist URL', '', '', '', 'Icons/_x.png')
+print f</string>
+				<key>subtext</key>
+				<string>Enter a playlist's URL</string>
+				<key>title</key>
+				<string>Luxinate Playlist</string>
+				<key>type</key>
+				<integer>3</integer>
+				<key>withspace</key>
+				<true/>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.input.scriptfilter</string>
+			<key>uid</key>
+			<string>73C69D0E-7CA6-4324-9F08-735D4F5ED2E3</string>
+			<key>version</key>
+			<integer>0</integer>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>escaping</key>
+				<integer>63</integer>
+				<key>script</key>
+				<string>#!/usr/bin/env python
+#-*- coding:UTF-8 -*-
+#
+# @author:  Ritashugisha
+# @contact: ritashugisha@gmail.com
+# @version: 1.1a
+
+import LuxinatePlaylist
+
+q = {query}
+if q['node'] == 1:
+    LuxinatePlaylist.downloadPlaylistVideo(q['url'])
+elif q['node'] == 2:
+    LuxinatePlaylist.downloadPlaylistAudio(q['url'])
+else:
+    pass</string>
+				<key>type</key>
+				<integer>3</integer>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.action.script</string>
+			<key>uid</key>
+			<string>8BBE9D23-2720-4F90-9DB2-E66EA5A98B84</string>
+			<key>version</key>
+			<integer>0</integer>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>argumenttype</key>
+				<integer>2</integer>
+				<key>escaping</key>
+				<integer>63</integer>
+				<key>keyword</key>
+				<string>► luxadvanced</string>
+				<key>runningsubtext</key>
+				<string>Loading...</string>
+				<key>script</key>
+				<string># @author:  Ritashugisha
+# @contact: ritashugisha@gmail.com
+
+import LuxinateAdvanced
+import utils
+import ast
+import os
+
+q = ast.literal_eval(open(utils.TEMP_LOG, 'r').readlines()[0])
+f = utils.Feedback()
+
+if q['node'] == 1:
+    for i in LuxinateAdvanced.getVideoFormats(q['url']):
+        f.add_item(i[1], q['title'], "{'node':%s,'url':'%s','title':'%s','file':'%s','extension':'%s','extra_option':'%s'}" % (q['node'], q['url'], q['title'], q['file'], utils.getFileExtension(q['file']),i[0]), '', '', 'Icons/_download.png')
+
+elif q['node'] == 2:
+    audioFormats = ['.mp3', '.wav', '.m4a', '.ogg', '.wma', '.mp2', '.acc', '.aiff']
+    for i in audioFormats:
+        f.add_item(i, q['title'], "{'node':%s,'url':'%s','title':'%s','file':'%s','extension':'%s', 'extra_option':''}" % (q['node'], q['url'], q['title'], q['file'], i), '', '', 'Icons/_download.png')
+
+elif q['node'] == 3:
+    f.add_item('No Download', 'Not a feature of Advanced Luxinate', '', '', '', 'Icons/_x.png')
+
+else:
+    pass
+
+print f
+        </string>
+				<key>title</key>
+				<string>Advanced Luxinate</string>
+				<key>type</key>
+				<integer>3</integer>
+				<key>withspace</key>
+				<false/>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.input.scriptfilter</string>
+			<key>uid</key>
+			<string>648B9966-9750-4141-917C-6AF1F11ADCCC</string>
+			<key>version</key>
+			<integer>0</integer>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>escaping</key>
+				<integer>63</integer>
+				<key>script</key>
+				<string># @author:  Ritashugisha
+# @contact: ritashugisha@gmail.com
+
+import LuxinateAdvanced
+import ast
+
+q = "{query}".replace('\\ ',' ').replace('\\','')
+q = ast.literal_eval(q)
+
+if q['node'] == 1:
+    LuxinateAdvanced.advancedDownloadVideo(q['node'], q['url'], q['extension'], q['file'], q['title'], q['extra_option'])
+elif q['node'] == 2:
+    LuxinateAdvanced.advancedDownloadAudio(q['node'], q['url'], q['extension'], q['file'], q['title'], q['extra_option'])
+else:
+    pass</string>
+				<key>type</key>
+				<integer>3</integer>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.action.script</string>
+			<key>uid</key>
+			<string>87CC6112-5166-44AF-A2B2-AEF1A820B290</string>
+			<key>version</key>
+			<integer>0</integer>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>escaping</key>
+				<integer>63</integer>
+				<key>script</key>
+				<string># @author:  Ritashugisha
+# @contact: ritashugisha@gmail.com
+
+import LuxinateSettings
+
+q = '{query}'
+q = str(q)
+
+if q == '1':
+	LuxinateSettings.setDownloadPath()
+elif q == '2':
+	LuxinateSettings.displayAbout()
+elif q == '3':
+	LuxinateSettings.displayHistory()
+elif q == '4':
+	LuxinateSettings.setDesiredVideoFormat()
+elif q == '5':
+	LuxinateSettings.setDesiredAudioFormat()
+elif q == '6':
+	LuxinateSettings.checkUpdates()
+else:
+	pass</string>
+				<key>type</key>
+				<integer>3</integer>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.action.script</string>
+			<key>uid</key>
+			<string>E9C8699A-7ACF-42B4-9FB4-CF091071C152</string>
+			<key>version</key>
+			<integer>0</integer>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>argumenttype</key>
+				<integer>2</integer>
+				<key>escaping</key>
+				<integer>63</integer>
+				<key>keyword</key>
+				<string>luxsettings</string>
+				<key>runningsubtext</key>
+				<string>Loading...</string>
+				<key>script</key>
+				<string># @author:  Ritashugisha
+# @contact: ritashugisha@gmail.com
+
+import utils
+
+f = utils.Feedback()
+f.add_item('Download Path', 'Edit where downloads are saved to', '1', '', '', 'Icons/_gear.png')
+f.add_item('About', 'About Luxinate', '2', '', '', 'Icons/_gear.png')
+f.add_item('Download History', 'View download history', '3', '', '', 'Icons/_gear.png')
+f.add_item('Default Video Download Format', 'Set preferred video download format', '4', '', '', 'Icons/_gear.png')
+f.add_item('Default Audio Download Format', 'Set preferred audio download format', '5', '', '', 'Icons/_gear.png')
+f.add_item('Update Luxinate', 'Check for updates', '6', '', '', 'Icons/_gear.png')
+print f</string>
+				<key>subtext</key>
+				<string>Edit Luxinate's Settings</string>
+				<key>title</key>
+				<string>Luxinate Settings</string>
+				<key>type</key>
+				<integer>3</integer>
+				<key>withspace</key>
+				<false/>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.input.scriptfilter</string>
+			<key>uid</key>
+			<string>5A3B67E3-17B9-4BD6-BB26-C42DDA532563</string>
+			<key>version</key>
+			<integer>0</integer>
+		</dict>
+	</array>
+	<key>readme</key>
+	<string>Luxinate - Download online streamed media
+
+About:
+	
+	- Author:  Ritashugisha
+	- Contact: ritashugisha@gmail.com
+	- Version: 3.4.1
+
+Luxinate utilizes youtube-dl, ffmpeg, terminal-notifier, and 
+cocoadialog in an Alfred-2 workflow. This workflow allows the 
+user to download video and audio from popular media sites.
+
+Although youtube-dl's list of media extractors are vast, 
+working sites are listed below:
+	
+	- YouTube
+	- SoundCloud
+	- and others... 
+
+Current Features:
+	
+	- Lux 
+		This option allows the user to input a URL to
+		a YouTube video or a SoundCloud track and
+		download the media as video or audio.
+	
+	- LuxSafari 
+		This option allows the user to scan the current
+		open tabs of the user‚Äôs safari browser and select
+		the open media they wish to download.
+	
+	- LuxChrome 
+		Same as LuxSafari, but with Chrome.
+
+	- LuxYouTube 
+		Allows the user to query YouTube directly by title
+		and either download the media or open the url.
+		(Thanks to Simon Storving for the base query code)
+
+	- LuxPlaylist 
+		Allows the user to enter the url of a playlist on
+		YouTube, and then download the entire playlist‚Äôs 
+		video or audio.
+
+	- LuxSettings
+		Opens an option panel including options that customize
+		the user interaction and advanced settings of
+		Luxinate.</string>
+	<key>uidata</key>
+	<dict>
+		<key>031DC4AB-CFFA-4FD8-8AA0-445E13F53754</key>
+		<dict>
+			<key>ypos</key>
+			<real>150</real>
+		</dict>
+		<key>128C7403-8B8A-4486-90B5-EBD47F012CC2</key>
+		<dict>
+			<key>ypos</key>
+			<real>450</real>
+		</dict>
+		<key>180032C4-B80C-4E23-B00D-6DBFDEBACF93</key>
+		<dict>
+			<key>ypos</key>
+			<real>150</real>
+		</dict>
+		<key>188E361E-49AB-46F7-903F-4459E84AE1FF</key>
+		<dict>
+			<key>ypos</key>
+			<real>350</real>
+		</dict>
+		<key>26EA6861-0D37-4055-A639-243B80E4130F</key>
+		<dict>
+			<key>ypos</key>
+			<real>350</real>
+		</dict>
+		<key>5A3B67E3-17B9-4BD6-BB26-C42DDA532563</key>
+		<dict>
+			<key>ypos</key>
+			<real>850</real>
+		</dict>
+		<key>648B9966-9750-4141-917C-6AF1F11ADCCC</key>
+		<dict>
+			<key>ypos</key>
+			<real>750</real>
+		</dict>
+		<key>6E0C7451-CB76-45E2-AB7A-2716A397C12F</key>
+		<dict>
+			<key>ypos</key>
+			<real>350</real>
+		</dict>
+		<key>73C69D0E-7CA6-4324-9F08-735D4F5ED2E3</key>
+		<dict>
+			<key>ypos</key>
+			<real>650</real>
+		</dict>
+		<key>86785098-CABA-454C-9CF7-5E2E8B782CDA</key>
+		<dict>
+			<key>ypos</key>
+			<real>550</real>
+		</dict>
+		<key>87CC6112-5166-44AF-A2B2-AEF1A820B290</key>
+		<dict>
+			<key>ypos</key>
+			<real>750</real>
+		</dict>
+		<key>8BBE9D23-2720-4F90-9DB2-E66EA5A98B84</key>
+		<dict>
+			<key>ypos</key>
+			<real>650</real>
+		</dict>
+		<key>9F82F9D3-77D8-4808-8A4F-B6AF8B78C0C7</key>
+		<dict>
+			<key>ypos</key>
+			<real>10</real>
+		</dict>
+		<key>A52A9B24-5910-40FC-AE41-49094D706A84</key>
+		<dict>
+			<key>ypos</key>
+			<real>210</real>
+		</dict>
+		<key>C9CFA0B3-D70E-4DE4-BA0B-40F278150393</key>
+		<dict>
+			<key>ypos</key>
+			<real>450</real>
+		</dict>
+		<key>CBFF43A9-ED92-4C37-AB8D-6EE91345968A</key>
+		<dict>
+			<key>ypos</key>
+			<real>110</real>
+		</dict>
+		<key>E228F65A-91AC-4DED-AE62-2010C6DEDB51</key>
+		<dict>
+			<key>ypos</key>
+			<real>50</real>
+		</dict>
+		<key>E9C8699A-7ACF-42B4-9FB4-CF091071C152</key>
+		<dict>
+			<key>ypos</key>
+			<real>850</real>
+		</dict>
+		<key>EABCF95D-AE25-4C89-8F4C-7BB11631DDAA</key>
+		<dict>
+			<key>ypos</key>
+			<real>250</real>
+		</dict>
+	</dict>
+	<key>webaddress</key>
+	<string>ritashugisha@gmail.com</string>
+</dict>
+</plist>
