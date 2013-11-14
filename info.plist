@@ -449,15 +449,25 @@ webbrowser.open(theUrl)</string>
 				<key>runningsubtext</key>
 				<string>Searching {query}...</string>
 				<key>script</key>
-				<string>import soundcloud
+				<string>#!/usr/bin/env python
+#-*- coding:UTF-8 -*-
+#
+# @author:  Ritashugisha
+# @contact: ritashugisha@gmail.com
+# @version: 1.1a
+
+import soundcloud
 import utils
 
 client = soundcloud.Client(client_id = 'd41555ed08885c41508d9aa7bc9c25b9')
 feed = utils.Feedback()
 tracks = client.get('/tracks', q = '{query}', limit = 9)
-for i in tracks:
-    iQuery = '%s|?|%s|?|%s' % (str(i.user_id), i.permalink, i.title)
-    feed.add_item(i.title, i.permalink, iQuery, '', '', 'Icons/_download.png')
+if not tracks:
+    feed.add_item('No results', 'No results were found', '', '', '', 'Icons/_x.png')
+else:
+    for i in tracks:
+        iQuery = '%s|?|%s|?|%s' % (str(i.user_id), i.permalink, i.title)
+        feed.add_item(i.title, i.permalink, iQuery, '', '', 'Icons/_download.png')
 print feed
 </string>
 				<key>subtext</key>
@@ -674,6 +684,37 @@ else:
 		<dict>
 			<key>config</key>
 			<dict>
+				<key>escaping</key>
+				<integer>63</integer>
+				<key>script</key>
+				<string># @author:  Ritashugisha
+# @contact: ritashugisha@gmail.com
+
+import LuxinateAdvanced
+import ast
+
+q = "{query}".replace('\\ ',' ').replace('\\','')
+q = ast.literal_eval(q)
+
+if q['node'] == 1:
+    LuxinateAdvanced.advancedDownloadVideo(q['node'], q['url'], q['extension'], q['file'], q['title'], q['extra_option'])
+elif q['node'] == 2:
+    LuxinateAdvanced.advancedDownloadAudio(q['node'], q['url'], q['extension'], q['file'], q['title'], q['extra_option'])
+else:
+    pass</string>
+				<key>type</key>
+				<integer>3</integer>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.action.script</string>
+			<key>uid</key>
+			<string>87CC6112-5166-44AF-A2B2-AEF1A820B290</string>
+			<key>version</key>
+			<integer>0</integer>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
 				<key>argumenttype</key>
 				<integer>2</integer>
 				<key>escaping</key>
@@ -722,37 +763,6 @@ print f
 			<string>alfred.workflow.input.scriptfilter</string>
 			<key>uid</key>
 			<string>648B9966-9750-4141-917C-6AF1F11ADCCC</string>
-			<key>version</key>
-			<integer>0</integer>
-		</dict>
-		<dict>
-			<key>config</key>
-			<dict>
-				<key>escaping</key>
-				<integer>63</integer>
-				<key>script</key>
-				<string># @author:  Ritashugisha
-# @contact: ritashugisha@gmail.com
-
-import LuxinateAdvanced
-import ast
-
-q = "{query}".replace('\\ ',' ').replace('\\','')
-q = ast.literal_eval(q)
-
-if q['node'] == 1:
-    LuxinateAdvanced.advancedDownloadVideo(q['node'], q['url'], q['extension'], q['file'], q['title'], q['extra_option'])
-elif q['node'] == 2:
-    LuxinateAdvanced.advancedDownloadAudio(q['node'], q['url'], q['extension'], q['file'], q['title'], q['extra_option'])
-else:
-    pass</string>
-				<key>type</key>
-				<integer>3</integer>
-			</dict>
-			<key>type</key>
-			<string>alfred.workflow.action.script</string>
-			<key>uid</key>
-			<string>87CC6112-5166-44AF-A2B2-AEF1A820B290</string>
 			<key>version</key>
 			<integer>0</integer>
 		</dict>
