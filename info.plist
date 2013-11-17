@@ -185,7 +185,7 @@
 				<key>runningsubtext</key>
 				<string>Loading...</string>
 				<key>script</key>
-				<string># @author:  Ritashugisha
+				<string>  # @author:  Ritashugisha
 # @contact: ritashugisha@gmail.com
 
 import utils
@@ -421,9 +421,9 @@ print f</string>
 import webbrowser
 client = soundcloud.Client(client_id = 'd41555ed08885c41508d9aa7bc9c25b9')
 query = '{query}'
-queryList = query.split('|?|')
-userId = queryList[0]
-permalink = queryList[1]
+query = query.split('|?luxSOUNDCLOUD?|')
+userId = query[0]
+permalink = query[1]
 artist = client.get('/users/' + userId)
 theUrl = "http://www.soundcloud.com/" + artist.permalink + '/' + permalink
 webbrowser.open(theUrl)</string>
@@ -466,7 +466,7 @@ if not tracks:
     feed.add_item('No results', 'No results were found', '', '', '', 'Icons/_x.png')
 else:
     for i in tracks:
-        iQuery = '%s|?|%s|?|%s' % (str(i.user_id), i.permalink, i.title)
+        iQuery = '%s|?luxSOUNDCLOUD?|%s|?luxSOUNDCLOUD?|%s' % (str(i.user_id), i.permalink, i.title)
         feed.add_item(i.title, i.permalink, iQuery, '', '', 'Icons/_download.png')
 print feed
 </string>
@@ -499,9 +499,9 @@ import utils
 import sys
 client = soundcloud.Client(client_id = 'd41555ed08885c41508d9aa7bc9c25b9')
 query = '{query}'
-queryList = query.split('|?|')
-userId = queryList[0]
-permalink = queryList[1]
+query = query.split('|?luxSOUNDCLOUD?|')
+userId = query[0]
+permalink = query[1]
 artist = client.get('/users/' + userId)
 theUrl = "http://www.soundcloud.com/" + artist.permalink + '/' + permalink
 sys.stdout.write(theUrl)</string>
