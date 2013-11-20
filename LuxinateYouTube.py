@@ -3,7 +3,6 @@
 #
 # @author:  Ritashugisha
 # @contact: ritashugisha@gmail.com
-# @version: 1.1a
 
 import json
 import locale

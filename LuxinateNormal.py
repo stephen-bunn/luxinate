@@ -3,67 +3,74 @@
 #
 # @author:  Ritashugisha
 # @contact: ritashugisha@gmail.com
-# @version: 1.1a
 
 import os
 import utils
 
+def runFilter(query):
+    if query['node'] == 1:
+        downloadVideo(query['url'])
+    elif query['node'] == 2:
+        downloadAudio(query['url'])
+    elif query['node'] == 3:
+        downloadVideo_Audio(query['url'])
+    else:
+        pass
 
-# Download video from url
 def downloadVideo(url):
-    if not utils.validatePath(utils.DOWNLOAD):
-        os.system('mkdir %s' % utils.DOWNLOAD)
-    (mediaTitle, mediaFile) = utils.getMediaInfo(url)
     utils.writeHistory(url)
-    utils.displayNotification(utils.TITLE, mediaTitle, '► Downloading Video', 'open %s' % utils.DOWNLOAD)
+    (mediaTitle, mediaFile) = utils.getMediaInfo(url)
     if utils.FORMAT_VIDEO:
-        procCmd = 'cd %s;%s -itf %s %s' % (utils.DOWNLOAD, utils.YOUTUBE_DL, utils.FORMAT_VIDEO, url)
+        downloadCmd = 'cd %s;%s -itf %s %s' % (utils.DOWNLOAD, utils.YOUTUBE_DL, utils.FORMAT_VIDEO, url)
     else:
-        procCmd = 'cd %s;%s -it %s' % (utils.DOWNLOAD, utils.YOUTUBE_DL, url)
-    proc = utils.runProcess(procCmd)
+        downloadCmd = 'cd %s;%s -it %s' % (utils.DOWNLOAD, utils.YOUTUBE_DL, url)
+    utils.displayNotification(utils.TITLE, mediaTitle, '► Downloading Video', 'open %s' % utils.DOWNLOAD)
+    proc = utils.runProcess(downloadCmd)
     utils.displayNotification(utils.TITLE, mediaTitle, 'Download Complete', 'open %s' % utils.DOWNLOAD)
-    utils.sendDiagnostics('downloadVideo', procCmd, '', proc)
+    utils.sendDiagnostics('downloadVideo', downloadCmd, '', proc)
     
-
-# Download audio from url
 def downloadAudio(url):
-    if not utils.validatePath(utils.DOWNLOAD):
-        os.system('mkdir %s' % utils.DOWNLOAD)
-    (mediaTitle, mediaFile) = utils.getMediaInfo(url)
     utils.writeHistory(url)
-    utils.displayNotification(utils.TITLE, mediaTitle, '► Downloading Audio', 'open %s' % utils.DOWNLOAD)
-    downloadProc = '%s -i %s -o %s' % (utils.YOUTUBE_DL, url, utils.TEMPORARY)
+    (mediaTitle, mediaFile) = utils.getMediaInfo(url)
+    downloadCmd = '%s -i %s -o %s' % (utils.YOUTUBE_DL, url, utils.TEMPORARY)
     if utils.FORMAT_AUDIO:
-        convertProc = '%s -i %s %s' % (utils.FFMPEG, utils.TEMPORARY, utils.replaceFileExtension('%s%s' % (utils.DOWNLOAD, utils.formatConsole(utils.formatSpaces(mediaFile))), utils.FORMAT_AUDIO))
+        if utils.FORMAT_AUDIO == '.mp3':
+            convertCmd = '%s -i %s -b:a 320k %s' % (utils.FFMPEG, utils.TEMPORARY, 
+            utils.replaceExtension('%s%s' % (utils.DOWNLOAD, utils.formatConsole(utils.formatSpaces(mediaFile))), utils.FORMAT_AUDIO))
+        else:
+            convertCmd = '%s -i %s %s' % (utils.FFMPEG, utils.TEMPORARY, 
+            utils.replaceExtension('%s%s' % (utils.DOWNLOAD, utils.formatConsole(utils.formatSpaces(mediaFile))), utils.FORMAT_AUDIO))
     else:
-        convertProc = '%s -i %s -b:a 320k %s' % (utils.FFMPEG, utils.TEMPORARY, utils.replaceFileExtension('%s%s' % (utils.DOWNLOAD, utils.formatConsole(utils.formatSpaces(mediaFile))), '.mp3'))
-    download = utils.runProcess(downloadProc)
-    convert = utils.runProcess(convertProc)
+        convertCmd = '%s -i %s -b:a 320k %s' % (utils.FFMPEG, utils.TEMPORARY, 
+        utils.replaceExtension('%s%s' % (utils.DOWNLOAD, utils.formatConsole(utils.formatSpaces(mediaFile))), '.mp3'))
+    utils.displayNotification(utils.TITLE, mediaTitle, '► Downloading Audio', 'open %s' % utils.DOWNLOAD)
+    proc = utils.runProcess(downloadCmd)
+    utils.runProcess(convertCmd)
     utils.displayNotification(utils.TITLE, mediaTitle, 'Download Complete', 'open %s' % utils.DOWNLOAD)
     os.system('rm -rf %s' % utils.TEMPORARY)
-    utils.sendDiagnostics('downloadAudio', downloadProc, convertProc, download)
+    utils.sendDiagnostics('downloadAudio', downloadCmd, convertCmd, proc)
     
-    
-# Download both video and audio from url
 def downloadVideo_Audio(url):
-    if not utils.validatePath(utils.DOWNLOAD):
-        os.system('mkdir %s' % utils.DOWNLOAD)
-    (mediaTitle, mediaFile) = utils.getMediaInfo(url)
     utils.writeHistory(url)
-    utils.displayNotification(utils.TITLE, mediaTitle, '► Downloading Video', 'open %s' % utils.DOWNLOAD)
+    (mediaTitle, mediaFile) = utils.getMediaInfo(url)
     if utils.FORMAT_VIDEO:
-        downloadProc = 'cd %s;%s -itf %s %s' % (utils.DOWNLOAD, utils.YOUTUBE_DL, utils.FORMAT, url)
+        downloadCmd = 'cd %s;%s -itf %s %s' % (utils.DOWNLOAD, utils.YOUTUBE_DL, utils.FORMAT_VIDEO, url)
     else:
-        downloadProc = 'cd %s;%s -it %s' % (utils.DOWNLOAD, utils.YOUTUBE_DL, url)
+        downloadCmd = 'cd %s;%s -it %s' % (utils.DOWNLOAD, utils.YOUTUBE_DL, url)
     if utils.FORMAT_AUDIO:
-        convertProc = '%s -i %s -b:a 320k %s' % (utils.FFMPEG, utils.formatSpaces(utils.formatConsole('%s%s' % (utils.DOWNLOAD, mediaFile))), utils.replaceFileExtension(utils.formatConsole(utils.formatSpaces('%s%s' % (utils.DOWNLOAD, mediaFile))), utils.FORMAT_AUDIO))
+        if utils.FORMAT_AUDIO == '.mp3':
+            convertCmd = '%s -i %s -b:a 320k %s' % (utils.FFMPEG, utils.formatConsole('%s%s' % (utils.DOWNLOAD, mediaFile)), 
+            utils.replaceExtension('%s%s' % (utils.DOWNLOAD, utils.formatConsole(utils.formatSpaces(mediaFile))), utils.FORMAT_AUDIO))
+        else:
+            convertCmd = '%s -i %s %s' % (utils.FFMPEG, utils.formatConsole('%s%s' % (utils.DOWNLOAD, mediaFile)),
+            utils.replaceExtension('%s%s' % (utils.DOWNLOAD, utils.formatConsole(utils.formatSpaces(mediaFile))), utils.FORMAT_AUDIO))
     else:
-        convertProc = '%s -i %s -b:a 320k %s' % (utils.FFMPEG, utils.formatSpaces(utils.formatConsole('%s%s' % (utils.DOWNLOAD, mediaFile))), utils.replaceFileExtension(utils.formatConsole(utils.formatSpaces('%s%s' % (utils.DOWNLOAD, mediaFile))), '.mp3'))
+        convertCmd = '%s -i %s -b:a 320k %s' % (utils.FFMPEG, utils.formatConsole('%s%s' % (utils.DOWNLOAD, mediaFile)), 
+        utils.replaceExtension('%s%s' % (utils.DOWNLOAD, utils.formatConsole(utils.formatSpaces(mediaFile))), '.mp3'))
     utils.displayNotification(utils.TITLE, mediaTitle, '► Downloading Video', 'open %s' % utils.DOWNLOAD)
-    download = utils.runProcess(downloadProc)
+    proc = utils.runProcess(downloadCmd)
     utils.displayNotification(utils.TITLE, mediaTitle, '► Downloading Audio', 'open %s' % utils.DOWNLOAD)
-    convert = utils.runProcess(convertProc)
+    utils.runProcess(convertCmd)
     utils.displayNotification(utils.TITLE, mediaTitle, 'Download Complete', 'open %s' % utils.DOWNLOAD)
-    utils.sendDiagnostics('downloadVideo_Audio', downloadProc, convertProc, download)
-              
-           
+    utils.sendDiagnostics('downloadVideo_Audio', downloadCmd, convertCmd, proc)
+    

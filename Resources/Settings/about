@@ -1,10 +1,10 @@
-Luxinate - Download online streamed media
+Luxinate - Download video and audio from streaming sites
 
 About:
 	
 	- Author:  Ritashugisha
 	- Contact: ritashugisha@gmail.com
-	- Version: 3.4.1
+	- Version: 3.6.1
 
 Luxinate utilizes youtube-dl, ffmpeg, terminal-notifier, and 
 cocoadialog in an Alfred-2 workflow. This workflow allows the 
