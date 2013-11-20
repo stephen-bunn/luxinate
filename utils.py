@@ -91,9 +91,9 @@ except:
     pass
 try:
     if len(open(DOWNLOADS, 'r').readline()) == 0:
-        DOWNLOAD = '%s%s' % (os.path.expanduser('~'), '/Downloads/')
+        DOWNLOAD = formatSpaces('%s%s' % (os.path.expanduser('~'), '/Downloads/'))
     else:
-        DOWNLOAD = open(DOWNLOADS, 'r').readline()
+        DOWNLOAD = formatSpaces(open(DOWNLOADS, 'r').readline())
     if len(open(FORMAT_VIDEO_PATH, 'r').readline()) == 0:
         FORMAT_VIDEO = ''
     else:
@@ -103,7 +103,7 @@ try:
     else:
         FORMAT_AUDIO = open(FORMAT_AUDIO_PATH, 'r').readline()
 except IOError:
-    DOWNLOAD = '%s%s' % (os.path.expanduser('~'), '/Downloads/')
+    DOWNLOAD = formatSpaces('%s%s' % (os.path.expanduser('~'), '/Downloads/'))
     FORMAT_VIDEO = ''
     FORMAT_AUDIO = ''
 if not os.path.exists(DOWNLOAD):
