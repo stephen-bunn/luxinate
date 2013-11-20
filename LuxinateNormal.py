@@ -7,6 +7,9 @@
 import os
 import utils
 
+# Filter dictionary query to specific node download
+#
+# @param query Dictionary of download information
 def runFilter(query):
     if query['node'] == 1:
         downloadVideo(query['url'])
@@ -17,6 +20,9 @@ def runFilter(query):
     else:
         pass
 
+# Download the video located at URL
+#
+# @param url URL to be downloaded from
 def downloadVideo(url):
     utils.writeHistory(url)
     (mediaTitle, mediaFile) = utils.getMediaInfo(url)
@@ -28,7 +34,10 @@ def downloadVideo(url):
     proc = utils.runProcess(downloadCmd)
     utils.displayNotification(utils.TITLE, mediaTitle, 'Download Complete', 'open %s' % utils.DOWNLOAD)
     utils.sendDiagnostics('downloadVideo', downloadCmd, '', proc)
-    
+
+# Download the audio located at URL
+#
+# @param url URL to be downloaded from    
 def downloadAudio(url):
     utils.writeHistory(url)
     (mediaTitle, mediaFile) = utils.getMediaInfo(url)
@@ -49,7 +58,10 @@ def downloadAudio(url):
     utils.displayNotification(utils.TITLE, mediaTitle, 'Download Complete', 'open %s' % utils.DOWNLOAD)
     os.system('rm -rf %s' % utils.TEMPORARY)
     utils.sendDiagnostics('downloadAudio', downloadCmd, convertCmd, proc)
-    
+
+# Download both the video and audio at URL
+#
+# @param url URL to be downloaded from    
 def downloadVideo_Audio(url):
     utils.writeHistory(url)
     (mediaTitle, mediaFile) = utils.getMediaInfo(url)

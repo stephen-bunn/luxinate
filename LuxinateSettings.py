@@ -7,6 +7,7 @@
 import sys
 import utils
 
+# Use cocoadialog to set the download path for downloads to be saved
 def setDownloadPath():
     proc = '%s fileselect --title %s --text %s --select-only-directories --stirng-output --float' % (utils.COCOA,
     utils.TITLE, utils.formatSpaces('Set where downloads are saved to by default:'))
@@ -18,7 +19,8 @@ def setDownloadPath():
         downloadText.write('%s/' % result.split('\n')[0])
         downloadText.close()
         utils.displayNotification(utils.TITLE, 'Download path changed', '%s/' % result.split('\n')[0], '')
-         
+
+# Use cocoadialog to display history text         
 def displayHistory():
     proc = '%s textbox --title %s --informative-text %s --text-from-file %s --button1 %s --button2 %s --float' % (utils.COCOA,
     utils.TITLE, utils.formatSpaces('Luxinate download history:'), utils.formatSpaces(utils.HISTORY), 'Ok', utils.formatSpaces('Clear History'))
@@ -27,12 +29,14 @@ def displayHistory():
         wipeHistory = open(utils.HISTORY, 'w')
         wipeHistory.close()
         utils.displayNotification(utils.TITLE, 'Luxinate history cleared', '', '')
-        
+
+# Use cocoadialog to display about text        
 def displayAbout():
     proc = '%s textbox --title %s --informative-text %s --text-from-file %s --button1 %s --float' % (utils.COCOA,
     utils.TITLE, utils.formatSpaces('About Luxinate:'), utils.ABOUT, 'Ok')
     utils.runProcess(proc)
-    
+
+# Use cocoadialog to set default video download format    
 def setVideoFormat():
     videoFormats = {
         '5':'FLV 240p', '6':'FLV 270p', '17':'3GP 144p', '18':'MP4 360p', '22':'MP4 720p', '34':'FLV 360p',
@@ -56,7 +60,8 @@ def setVideoFormat():
                 newFormat.write(key)
                 newFormat.close()
                 utils.displayNotification(utils.TITLE, 'Default video format: %s' % value, '', '')
-    
+
+# Use cocoadialog to set default audio download format    
 def setAudioFormat():
     audioFormats = {
         '.mp3':'MP3', '.wav':'WAV', '.ogg':'OGG', '.m4a':'M4A', '.wma':'WMA'
@@ -79,6 +84,7 @@ def setAudioFormat():
                 newFormat.close()
                 utils.displayNotification(utils.TITLE, 'Default audio format: %s' % value, '', '')
 
+# Install SoundCloud API using pip or easy_install
 def installSoundCloudAPI():
     validatePip = utils.runProcess('whereis pip')
     if validatePip:
@@ -88,7 +94,8 @@ def installSoundCloudAPI():
     utils.displayNotification(utils.TITLE, 'Installing SoundCloud API', 'Please enter your user password...', '')
     utils.runProcess(osaCmd)
     utils.displayNotification(utils.TITLE, 'Installation Complete', '', '') 
-                                        
+
+# Check for updates in the raw update file on Luxinate's github                                       
 def checkUpdates():
     import ast
     import urllib2

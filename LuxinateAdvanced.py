@@ -7,6 +7,7 @@
 import os
 import utils
 
+# Evaluate the saved dictionary at TEMPFILE and format feed for Alfred 2 accordingly
 def process():
     import ast
     q = ast.literal_eval(open(utils.TEMPFILE, 'r').readlines()[0])
@@ -33,6 +34,10 @@ def process():
         feed.add_item('Invalid URL', 'Not a feature of Adcanced Luxinate', '', '', '', 'Icons/_x.png')
     print feed
 
+# Get a list of available formats for the passed URL
+#
+# @param url URL to be analyzed
+# @return formatValues [value0, value1, value2, ...]
 def getVideoFormats(url):
     formatCmd = '%s -F %s' % (utils.YOUTUBE_DL, url)
     format = utils.runProcess(formatCmd)
@@ -49,7 +54,15 @@ def getVideoFormats(url):
     for i in formatDict.iteritems():
         formatValues.append(i)
     return formatValues
-    
+
+# Download the video according to the specified parameters
+#
+# @param node Video node (1)
+# @param url URL to be downloaded
+# @param extension Extension to be changed (null)
+# @param fileName Name of file at URL
+# @param mediaTitle Title of URL download
+# @oaram format Format value to be passed
 def advancedDownloadVideo(node, url, extension, fileName, mediaTitle, format):
     utils.writeHistory(url)
     downloadCmd = 'cd %s;%s -f %s %s' % (utils.DOWNLOAD, utils.YOUTUBE_DL, format, url)
@@ -57,7 +70,15 @@ def advancedDownloadVideo(node, url, extension, fileName, mediaTitle, format):
     proc = utils.runProcess(downloadCmd)
     utils.displayNotification(utils.TITLE, mediaTitle, 'Download Complete', 'open %s' % utils.DOWNLOAD)
     utils.sendDiagnostics('advancedDownloadVideo', downloadCmd, '', proc)
-    
+
+# Download the audio according to the specified parameters 
+#
+# @param node Audio node (2)
+# @param url URL to be downloaded
+# @param extension Extension to be changed
+# @param fileName Name of file at URL
+# @param mediaTitle Title of URL downloaded
+# @param format Format value to be passed (null)
 def advancedDownloadAudio(node, url, extension, fileName, mediaTitle, format):
     utils.writeHistory(url)
     downloadCmd = '%s %s -o %s' % (utils.YOUTUBE_DL, url, utils.TEMPORARY)

@@ -9,6 +9,11 @@ import locale
 import urllib
 import utils
 
+# Format search of YouTube's gdata for Alfred 2
+#
+# @param query Query to search YouTube's gdata
+# @param maxResults = 0
+# @param showViews = False
 def searchVideos(query, maxResults = 0, showViews = False):
     def configure():
         if showViews:

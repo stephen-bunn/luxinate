@@ -7,6 +7,9 @@
 import utils
 import soundcloud
 
+# Search and format tracks on SoundCloud for Alfred 2
+#
+# @param query Query to search in SoundCloud
 def searchSounds(query):
     client = soundcloud.Client(client_id = utils.SOUNDCLOUD_API)
     f = utils.Feedback()
@@ -17,7 +20,11 @@ def searchSounds(query):
         for i in tracks:
             f.add_item(i.title, i.permalink, '%s{|lux|}%s{|lux|}%s' % (str(i.user_id), i.permalink, i.title), '', '', 'Icons/_download.png')
     print f
-    
+
+# Build and configure the query into SoundCloud URL
+#
+# @param query Specialized arg of searchSounds
+# @return URL of selected SoundCloud track    
 def buildUrl(query):
     client = soundcloud.Client(client_id = utils.SOUNDCLOUD_API)
     query = query.split('{|lux|}')

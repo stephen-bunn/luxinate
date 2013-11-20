@@ -7,6 +7,9 @@
 import os
 import utils
 
+# Validate query URL and format Alfred feed
+#
+# @param query URL to be validated and passed as next {query}
 def process(query):
     feed = utils.Feedback()
     try:
@@ -19,6 +22,9 @@ def process(query):
         feed.add_item('Invalid URL', 'No playlist could be found at %s' % query, '', '', '', 'Icons/_x.png')
     print feed
 
+# Download each video in the validated playlist URL
+#
+# @param url URL to playlist
 def downloadPlaylistVideo(url):
     utils.writeHistory(url)
     if utils.FORMAT_VIDEO:
@@ -29,7 +35,10 @@ def downloadPlaylistVideo(url):
     proc = utils.runProcess(downloadCmd)
     utils.displayNotification(utils.TITLE, url, 'Download Complete', 'open %s' % utils.DOWNLOAD)
     utils.sendDiagnostics('downloadPlaylistVideo', downloadCmd, '', proc)
-    
+
+# Download each audio in the validated playlist URL
+#
+# @param url URL to playlist    
 def downloadPlaylistAudio(url):
     utils.writeHistory(url)
     downloadCmd = 'mkdir %s;cd %s;%s -cit %s' % (utils.TEMPDIR, utils.TEMPDIR, utils.YOUTUBE_DL, url)
