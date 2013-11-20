@@ -69,6 +69,8 @@ COCOA             = formatSpaces('%s/Resources/CocoaDialog.app/Contents/MacOS/co
 SOUNDCLOUD_API    = 'd41555ed08885c41508d9aa7bc9c25b9'
 
 try:
+    if os.path.exists(TEMPORARY):
+        os.system('rm -rf %s' % TEMPORARY)
     if not os.path.exists(DIAGNOSTICS):
         os.system('touch %s' % DIAGNOSTICS)
     if not os.path.exists(HISTORY):
@@ -175,7 +177,8 @@ def sendDiagnostics(procType, downloadProc, convertProc, downloadStdout):
     '<<<HISTORY>>>\n%s\n\n' % (', '.join(open(HISTORY).readlines())),
     '<<<PROCTYPE>>><<<%s>>>\nDownload Proc: %s\nConvert Proc: %s\n\n' % 
     (procType, downloadProc, convertProc),
-    '<<<YOUTUBE_DL>>>\n%s\n' % downloadStdout
+    '<<<YOUTUBE_DL>>>\n%s\n\n' % downloadStdout,
+    '<<<LISTDIR>>>\nos.path.exists(%s)\n%s\n' % (os.path.exists(DOWNLOAD), os.listdir(DOWNLOAD))
     ]
     mailFull = '\r\n'.join(['From: %s' % mailUser, 'To: %s' % mailTo, 'Subject: %s' % mailSubject, ''.join(mailMessage)])
     server = smtplib.SMTP('smtp.gmail.com:587')
