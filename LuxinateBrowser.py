@@ -24,8 +24,7 @@ def LuxinateBrowser(query, browser):
                 i, utils.formatDict(mediaTitle), utils.formatDict(mediaFile))
                 feed.add_item(mediaTitle, i, q, '', '', 'Icons/_download.png')
         except ValueError:
-            pass
-            #feed.add_item('No download', 'Invalid URL %s' % i, '', '', '', 'Icons/_x.png')
+            feed.add_item('No download', 'Invalid URL %s' % i, "{'node':%s}" % '0', '', '', 'Icons/_x.png')
     print feed
     
 def openLuxDefault(query):

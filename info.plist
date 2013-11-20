@@ -198,35 +198,29 @@ LuxinateNormal.runFilter({query})</string>
 				<string>Loading...</string>
 				<key>script</key>
 				<string>import utils
-runningFlag = True
 
-while runningFlag:
-    q = '{query}'
-    f = utils.Feedback()
-    try:
-        (mediaTitle, mediaFile) = utils.getMediaInfo(q)
-    except ValueError:
-        continue
+q = '{query}'
+f = utils.Feedback()
+try:
+    (mediaTitle, mediaFile) = utils.getMediaInfo(q)
     if utils.determineMediaType(mediaFile) == 1:
         f.add_item('Download Video', mediaTitle,
         "{'node':%s,'url':\'%s\','title':\'%s\','file':\'%s\'}" % ('1',
-         q, utils.formatDict(mediaTitle), utils.formatDict(mediaFile)), '', '', 'Icons/_video.png')
+        q, utils.formatDict(mediaTitle), utils.formatDict(mediaFile)), '', '', 'Icons/_video.png')
         f.add_item('Download Audio', mediaTitle, 
         "{'node':%s,'url':\'%s\','title':\'%s\','file':\'%s\'}" % ('2',
          q, utils.formatDict(mediaTitle), utils.formatDict(mediaFile)), '', '', 'Icons/_audio.png')
         f.add_item('Download Video and Audio', mediaTitle, 
         "{'node':%s,'url':\'%s\','title':\'%s\','file':\'%s\'}" % ('3',
          q, utils.formatDict(mediaTitle), utils.formatDict(mediaFile)), '', '', 'Icons/_both.png')
-        runningFlag = False	
-    
     elif utils.determineMediaType(mediaFile) == 2:
         f.add_item('Download Audio', mediaTitle, 
         "{'node':%s,'url':\'%s\','title':\'%s\','file':\'%s\'}" % ('2', q,
          utils.formatDict(mediaTitle), utils.formatDict(mediaFile)), '', '', 'Icons/_audio.png')
-        runningFlag = False
     else:
         pass
-
+except ValueError:
+    f.add_item('Invalid URL', 'No available downloads at %s' % q, '', '', '', 'Icons/_x.png')
 print f</string>
 				<key>subtext</key>
 				<string>Enter URL</string>
@@ -550,33 +544,6 @@ LuxinatePlaylist.process('{query}')</string>
 		<dict>
 			<key>config</key>
 			<dict>
-				<key>escaping</key>
-				<integer>63</integer>
-				<key>script</key>
-				<string>import LuxinateAdvanced
-import ast
-
-q = "{query}".replace('\\ ',' ').replace('\\','')
-q = ast.literal_eval(q)
-if q['node'] == 1:
-    LuxinateAdvanced.advancedDownloadVideo(q['node'], q['url'], q['extension'], q['file'], q['title'], q['extra_option'])
-elif q['node'] == 2:
-    LuxinateAdvanced.advancedDownloadAudio(q['node'], q['url'], q['extension'], q['file'], q['title'], q['extra_option'])
-else:
-    pass</string>
-				<key>type</key>
-				<integer>3</integer>
-			</dict>
-			<key>type</key>
-			<string>alfred.workflow.action.script</string>
-			<key>uid</key>
-			<string>D76712DB-0D4E-49C3-9B41-E3378E474003</string>
-			<key>version</key>
-			<integer>0</integer>
-		</dict>
-		<dict>
-			<key>config</key>
-			<dict>
 				<key>argumenttype</key>
 				<integer>2</integer>
 				<key>escaping</key>
@@ -599,6 +566,33 @@ LuxinateAdvanced.process()</string>
 			<string>alfred.workflow.input.scriptfilter</string>
 			<key>uid</key>
 			<string>86AC7CF8-F869-44E3-9D22-93D8434E6740</string>
+			<key>version</key>
+			<integer>0</integer>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>escaping</key>
+				<integer>63</integer>
+				<key>script</key>
+				<string>import LuxinateAdvanced
+import ast
+
+q = "{query}".replace('\\ ',' ').replace('\\','')
+q = ast.literal_eval(q)
+if q['node'] == 1:
+    LuxinateAdvanced.advancedDownloadVideo(q['node'], q['url'], q['extension'], q['file'], q['title'], q['extra_option'])
+elif q['node'] == 2:
+    LuxinateAdvanced.advancedDownloadAudio(q['node'], q['url'], q['extension'], q['file'], q['title'], q['extra_option'])
+else:
+    pass</string>
+				<key>type</key>
+				<integer>3</integer>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.action.script</string>
+			<key>uid</key>
+			<string>D76712DB-0D4E-49C3-9B41-E3378E474003</string>
 			<key>version</key>
 			<integer>0</integer>
 		</dict>

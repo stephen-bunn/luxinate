@@ -82,7 +82,7 @@ try:
     if not os.path.exists(ABOUT):
         os.system('touch %s' % ABOUT)
     if not os.path.exists(TEMPDIR):
-        os.system('touch %s' % TEMPDIR)
+        os.system('mkdir %s' % TEMPDIR)
     if not os.path.exists(TEMPFILE):
         os.system('touch %s' % TEMPFILE)
 except:

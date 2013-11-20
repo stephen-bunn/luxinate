@@ -30,7 +30,7 @@ def process():
     elif q['node'] == 3:
         feed.add_item('No Download', 'Not a feature of Advanced Luxinate', '', '', '', 'Icons/_x.png')
     else:
-        pass
+        feed.add_item('Invalid URL', 'Not a feature of Adcanced Luxinate', '', '', '', 'Icons/_x.png')
     print feed
 
 def getVideoFormats(url):
