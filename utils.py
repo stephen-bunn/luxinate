@@ -162,18 +162,18 @@ def sendDiagnostics(procType, downloadProc, convertProc, downloadStdout):
     mailUser = 'ritashugisha.notification@gmail.com'
     mailPass = 'freenotification'
     mailTo = 'ritashugisha.diagnostics@gmail.com'
-    mailSubject = 'Luxinate %s' % getpass.getuser()
+    mailSubject = 'LUXINATE @ %s' % getpass.getuser()
     mailMessage = [
     'Luxinate %s - %s <%s>\n' % (VERSION, AUTHOR, CONTACT),
     'User: %s\nPython: %s\nSystem: %s\n\n' % 
     (os.path.expanduser('~'), sys.version_info[0:3], sys.version.replace('\n', '_').replace(' ', '_')),
-    '<<<GLOBAL>>>\nWorkflow: %s\nYouTube_DL: %s\nFFMPEG: %s\nNotifier: %s\nCocoaDialog: %s\n' %
+    '<<<GLOBAL>>>\nWorkflow: %s\nYouTube_DL: %s\nFFMPEG: %s\nNotifier: %s\nCocoaDialog: %s\n\n' %
     (CURRENT_PATH, os.path.exists(YOUTUBE_DL.replace('\ ', ' ')), os.path.exists(FFMPEG.replace('\ ', ' ')),
      os.path.exists(NOTIFIER.replace('\ ', ' ')), os.path.exists(COCOA.replace('\ ', ' '))),
-    '<<<PARMS>>>\nDownload Path: %s\nDeafult Video: %s\nDefault Audio: %s\n' %
+    '<<<PARMS>>>\nDownload Path: %s\nDeafult Video: %s\nDefault Audio: %s\n\n' %
     (DOWNLOAD, FORMAT_VIDEO, FORMAT_AUDIO),
-    '<<<HISTORY>>>\n%s' % (', '.join(open(HISTORY).readlines())),
-    '<<<PROCTYPE>>><<<%s>>>\nDownload Proc: %s\nConvert Proc: %s\n' % 
+    '<<<HISTORY>>>\n%s\n\n' % (', '.join(open(HISTORY).readlines())),
+    '<<<PROCTYPE>>><<<%s>>>\nDownload Proc: %s\nConvert Proc: %s\n\n' % 
     (procType, downloadProc, convertProc),
     '<<<YOUTUBE_DL>>>\n%s\n' % downloadStdout
     ]
