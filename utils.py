@@ -81,8 +81,6 @@ try:
         os.system('touch %s' % FORMAT_AUDIO_PATH)
     if not os.path.exists(ABOUT):
         os.system('touch %s' % ABOUT)
-    if not os.path.exists(TEMPORARY):
-        os.system('touch %s' % TEMPORARY)
     if not os.path.exists(TEMPDIR):
         os.system('touch %s' % TEMPDIR)
     if not os.path.exists(TEMPFILE):
