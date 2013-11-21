@@ -53,7 +53,7 @@ def formatSpaces(string):
 # @param string String to be formatted
 # @return string String with characters escaped
 def formatConsole(string):
-    formatChars = ['&', ';', '(', ')', '@', '$', '`', '|', "'"]
+    formatChars = ['!', '?', '$', '%', '#', '&', '*', ';', '(', ')', '[', ']', '{', '}', '@', '`', '|', "'", '"', '~', '<', '>']
     for i in formatChars:
         if i in formatChars:
             string = string.replace(i, '\%s' % i)
