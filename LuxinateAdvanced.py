@@ -65,10 +65,15 @@ def getVideoFormats(url):
 # @oaram format Format value to be passed
 def advancedDownloadVideo(node, url, extension, fileName, mediaTitle, format):
     utils.writeHistory(url)
+    utils.writeTemp(url)
     downloadCmd = 'cd %s;%s -f %s %s' % (utils.DOWNLOAD, utils.YOUTUBE_DL, format, url)
-    utils.displayNotification(utils.TITLE, mediaTitle, '► Downloading Video', 'open %s' % utils.DOWNLOAD)
-    proc = utils.runProcess(downloadCmd)
-    utils.displayNotification(utils.TITLE, mediaTitle, 'Download Complete', 'open %s' % utils.DOWNLOAD)
+    if utils.PROGRESS:
+        downloadCmd = '%s --newline' % downloadCmd
+        proc = utils.runProgressBarDownload(downloadCmd)
+    else:
+        utils.displayNotification(utils.TITLE, mediaTitle, '► Downloading Video', 'open %s' % utils.DOWNLOAD)
+        proc = utils.runProcess(downloadCmd)
+    utils.displayNotification(utils.TITLE, url, 'Download Complete', 'open %s' % utils.DOWNLOAD)
     utils.sendDiagnostics('advancedDownloadVideo', downloadCmd, '', proc)
 
 # Download the audio according to the specified parameters 
@@ -81,15 +86,21 @@ def advancedDownloadVideo(node, url, extension, fileName, mediaTitle, format):
 # @param format Format value to be passed (null)
 def advancedDownloadAudio(node, url, extension, fileName, mediaTitle, format):
     utils.writeHistory(url)
+    utils.writeTemp(url)
     downloadCmd = '%s %s -o %s' % (utils.YOUTUBE_DL, url, utils.TEMPORARY)
     if extension == '.mp3':
-        convertCmd = '%s -i %s -b:a 320k %s' % (utils.FFMPEG, 
+        convertCmd = '%s -y -i %s -b:a 320k %s' % (utils.FFMPEG, 
         utils.TEMPORARY, '%s%s' % (utils.DOWNLOAD, utils.formatConsole(utils.formatSpaces(utils.replaceExtension(fileName, extension)))))
     else:
-        convertCmd = '%s -i %s %s' % (utils.FFMPEG,
+        convertCmd = '%s -y -i %s %s' % (utils.FFMPEG,
         utils.TEMPORARY, '%s%s' % (utils.DOWNLOAD, utils.formatConsole(utils.formatSpaces(utils.replaceExtension(fileName, extension)))))
-    utils.displayNotification(utils.TITLE, mediaTitle, '► Downloading Audio', 'open %s' % utils.DOWNLOAD)
-    proc = utils.runProcess(downloadCmd)
-    utils.runProcess(convertCmd)
+    if utils.PROGRESS:
+        downloadCmd = '%s --newline' % downloadCmd
+        proc = utils.runProgressBarDownload(downloadCmd, quitFilter = False)
+        utils.runProgressBarConvert(convertCmd)
+    else:
+        utils.displayNotification(utils.TITLE, mediaTitle, '► Downloading Audio', 'open %s' % utils.DOWNLOAD)
+        proc = utils.runProcess(downloadCmd)
+        utils.runProcess(convertCmd)
     utils.displayNotification(utils.TITLE, mediaTitle, 'Download Complete', 'open %s' % utils.DOWNLOAD)
     utils.sendDiagnostics('advancedDownloadAudio', downloadCmd, convertCmd, proc)

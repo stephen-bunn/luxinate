@@ -93,7 +93,19 @@ def installSoundCloudAPI():
         osaCmd = 'osascript -e \'tell application "Alfred 2" to do shell script "sudo easy_install soundcloud" with administrator privileges\''
     utils.displayNotification(utils.TITLE, 'Installing SoundCloud API', 'Please enter your user password...', '')
     utils.runProcess(osaCmd)
-    utils.displayNotification(utils.TITLE, 'Installation Complete', '', '') 
+    utils.displayNotification(utils.TITLE, 'Installation Complete', '', '')
+
+# Toggle progress bar on and off    
+def toggleProgressBar():
+    if utils.PROGRESS:
+        wipeProgress = open(utils.PROGRESS_BAR, 'w')
+        wipeProgress.close()
+        utils.displayNotification(utils.TITLE, 'Progress bar turned off', '', '')
+    else:
+        bumpProgress = open(utils.PROGRESS_BAR, 'w')
+        bumpProgress.write('True')
+        bumpProgress.close()
+        utils.displayNotification(utils.TITLE, 'Progress bar turned on', '', '')
 
 # Check for updates in the raw update file on Luxinate's github                                       
 def checkUpdates():

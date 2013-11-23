@@ -37,6 +37,11 @@ Current Features:
 		and either download the media or open the url.
 		(Thanks to Simon Storving for the base query code)
 
+	- LuxSoundCloud
+		Allows the user to query SoundCloud directly by
+		track name and either download the media or open
+		the url.
+
 	- LuxPlaylist 
 		Allows the user to enter the url of a playlist on
 		YouTube, and then download the entire playlist’s 

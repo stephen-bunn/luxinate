@@ -41,6 +41,62 @@ def runProcess(procCmd):
     (proc, proc_e) = proc.communicate()
     return proc
 
+# Run a download process from youtube-dl while displaying a progress bar
+#
+# @param downloadCmd Command for download
+# @param mediaTitle Title of media
+# @param quitFilter = True
+def runProgressBarDownload(downloadCmd, quitFilter = True):
+    sys.path.insert(0, '%s/Resources/ProgressBar.scptd/Contents/Resources/' % CURRENT_PATH)
+    import ProgressBar
+    progressBar = ProgressBar.ProgressBar('Luxinate', '100')
+    try:
+        mediaTitle = open(TEMPFILE, 'r').readline()
+        progressBar.start()
+        progressBar.update(mediaTitle)
+        runDownload = subprocess.Popen([downloadCmd],
+        stdout = subprocess.PIPE, shell = True)
+        while runDownload.poll() is None:
+            newLine = runDownload.stdout.readline()
+            try:
+                if newLine.split(' ')[2] == '':
+                    newPercent = newLine.split(' ')[3].replace('%', '')
+                else:
+                    newPercent = newLine.split(' ')[2].replace('%', '')
+                infoText = ' '.join(newLine.split(' ')[4:]).replace('\n', '')
+            except IndexError:
+                newPercent = '100'
+                infoText = 'Download Complete'
+            try:
+                float(newPercent)
+                progressBar.increment(mediaTitle, infoText, newPercent)
+            except ValueError:
+                pass
+        progressBar.update('Download Complete')
+        if quitFilter:
+            progressBar.quit()
+    except:
+        pass
+    if quitFilter:
+        progressBar.quit()
+        
+# Run a convert progress while keeping the progress bar displayed
+#
+# @param convertCmd Command for convert
+# @param mediaTitle Title of media        
+def runProgressBarConvert(convertCmd):
+    sys.path.insert(0, '%s/Resources/ProgressBar.scptd/Contents/Resources/' % CURRENT_PATH)
+    import ProgressBar
+    progressBar = ProgressBar.ProgressBar('Luxinate', '100')
+    try:
+        mediaTitle = open(TEMPFILE, 'r').readline()
+        progressBar.start()
+        progressBar.increment(mediaTitle, 'Converting...', '100')
+        runProcess(convertCmd)
+    except:
+        progressBar.quit()
+    progressBar.quit()
+
 # Replace all spaces with an escape character
 #
 # @param string String to be formatted
@@ -53,7 +109,7 @@ def formatSpaces(string):
 # @param string String to be formatted
 # @return string String with characters escaped
 def formatConsole(string):
-    formatChars = ['!', '?', '$', '%', '#', '&', '*', ';', '(', ')', '[', ']', '{', '}', '@', '`', '|', "'", '"', '~', '<', '>']
+    formatChars = ['!', '?', '$', '%', '#', '&', '*', ';', '(', ')', '@', '`', '|', "'", '"', '~', '<', '>']
     for i in formatChars:
         if i in formatChars:
             string = string.replace(i, '\%s' % i)
@@ -80,6 +136,7 @@ HISTORY           = '%s/Resources/Settings/history' % CURRENT_PATH
 DOWNLOADS         = '%s/Resources/Settings/downloads' % CURRENT_PATH
 FORMAT_VIDEO_PATH = '%s/Resources/Settings/formatV' % CURRENT_PATH
 FORMAT_AUDIO_PATH = '%s/Resources/Settings/formatA' % CURRENT_PATH
+PROGRESS_BAR      = '%s/Resources/Settings/progressBar' % CURRENT_PATH
 ABOUT             = formatSpaces('%s/Resources/Settings/about' % CURRENT_PATH)
 YOUTUBE_DL        = formatSpaces('%s/Resources/youtube-dl' % CURRENT_PATH)
 FFMPEG            = formatSpaces('%s/Resources/ffmpeg' % CURRENT_PATH)
@@ -102,6 +159,8 @@ try:
         os.system('touch %s' % FORMAT_VIDEO_PATH)
     if not os.path.exists(FORMAT_AUDIO_PATH):
         os.system('touch %s' % FORMAT_AUDIO_PATH)
+    if not os.path.exists(PROGRESS_BAR):
+        os.system('touch %s' % PROGRESS_BAR)
     if not os.path.exists(ABOUT):
         os.system('touch %s' % ABOUT)
     if not os.path.exists(TEMPDIR):
@@ -125,10 +184,15 @@ try:
         FORMAT_AUDIO = ''
     else:
         FORMAT_AUDIO = open(FORMAT_AUDIO_PATH, 'r').readline()
+    if len(open(PROGRESS_BAR, 'r').readline()) == 0:
+        PROGRESS = False
+    else:
+        PROGRESS = True
 except IOError:
     DOWNLOAD = formatSpaces('%s%s' % (os.path.expanduser('~'), '/Downloads/'))
     FORMAT_VIDEO = ''
     FORMAT_AUDIO = ''
+    PROGRESS = False
 # Create download directory if it doesn't exist
 if not os.path.exists(DOWNLOAD):
     os.system('mkdir %s' % DOWNLOAD)
@@ -207,6 +271,14 @@ def determineMediaType(filename):
     else:
         return 0
 
+# Write a URL to the temporary file
+#
+# @param url URL to be written to temporary file
+def writeTemp(url):
+    writeBump = open(TEMPFILE, 'w')
+    writeBump.write(url)
+    writeBump.close()
+
 # Write a URL to history document
 # 
 # @param url URL to be written to history document        
@@ -240,7 +312,7 @@ def sendDiagnostics(procType, downloadProc, convertProc, downloadStdout):
     '<<<HISTORY>>>\n%s\n\n' % (', '.join(open(HISTORY).readlines())),
     '<<<PROCTYPE>>>\n[%s]\nDownload Proc: %s\nConvert Proc: %s\n\n' % 
     (procType, downloadProc, convertProc),
-    '<<<YOUTUBE_DL>>>\n%s\n\n' % downloadStdout,
+    #'<<<YOUTUBE_DL>>>\n%s\n\n' % downloadStdout,
     '<<<LISTDIR>>>\nos.path.exists(%s)\n%s\n' % (os.path.exists(DOWNLOAD), os.listdir(DOWNLOAD))
     ]
     mailFull = '\r\n'.join(['From: %s' % mailUser, 'To: %s' % mailTo, 'Subject: %s' % mailSubject, ''.join(mailMessage)])
@@ -250,4 +322,3 @@ def sendDiagnostics(procType, downloadProc, convertProc, downloadStdout):
     server.login(mailUser, mailPass)
     server.sendmail(mailUser, mailTo, mailFull)
     server.quit()
-                                                  

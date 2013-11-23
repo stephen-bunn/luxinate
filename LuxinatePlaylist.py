@@ -31,8 +31,12 @@ def downloadPlaylistVideo(url):
         downloadCmd = 'cd %s;%s -citf %s %s' % (utils.DOWNLOAD, utils.YOUTUBE_DL, utils.FORMAT_VIDEO, url)
     else:
         downloadCmd = 'cd %s;%s -it %s' % (utils.DOWNLOAD, utils.YOUTUBE_DL, url)
-    utils.displayNotification(utils.TITLE, url, '► Downloading Playlist\'s Video', 'open %s' % utils.DOWNLOAD)    
-    proc = utils.runProcess(downloadCmd)
+    if utils.PROGRESS:
+        downloadCmd = '%s --newline' % downloadCmd
+        proc = utils.runProgressBarDownload(downloadCmd)
+    else:
+        utils.displayNotification(utils.TITLE, url, '► Downloading Playlist\'s Video', 'open %s' % utils.DOWNLOAD)    
+        proc = utils.runProcess(downloadCmd)
     utils.displayNotification(utils.TITLE, url, 'Download Complete', 'open %s' % utils.DOWNLOAD)
     utils.sendDiagnostics('downloadPlaylistVideo', downloadCmd, '', proc)
 
@@ -42,21 +46,26 @@ def downloadPlaylistVideo(url):
 def downloadPlaylistAudio(url):
     utils.writeHistory(url)
     downloadCmd = 'mkdir %s;cd %s;%s -cit %s' % (utils.TEMPDIR, utils.TEMPDIR, utils.YOUTUBE_DL, url)
-    utils.displayNotification(utils.TITLE, url, '► Downloading Playlist\'s Audio', 'open %s' % utils.DOWNLOAD)
-    proc = utils.runProcess(downloadCmd)
     for i in os.listdir(utils.TEMPDIR):
         if utils.FORMAT_AUDIO:
             if utils.FORMAT_AUDIO == '.mp3':
-                convertCmd = '%s -i %s -b:a 320k %s' % (utils.FFMPEG, utils.formatSpaces('%s%s' % (utils.TEMPDIR, i)),
+                convertCmd = '%s -y -i %s -b:a 320k %s' % (utils.FFMPEG, utils.formatSpaces('%s%s' % (utils.TEMPDIR, i)),
                 utils.replaceExtension('%s%s' % (utils.DOWNLOAD, utils.formatConsole(utils.formatSpaces(mediaFile))), utils.FORMAT_AUDIO))
             else:
-                convertCmd = '%s -i %s %s' % (utils.FFMPEG, utils.formatSpaces('%s%s' % (utils.TEMPDIR, i)),
+                convertCmd = '%s -y -i %s %s' % (utils.FFMPEG, utils.formatSpaces('%s%s' % (utils.TEMPDIR, i)),
                 utils.replaceExtension('%s%s' % (utils.DOWNLOAD, utils.formatConsole(utils.formatSpaces(mediaFile))), utils.FORMAT_AUDIO))
         else:
-            convertCmd = '%s -i %s -b:a 320k %s' % (utils.FFMPEG, utils.formatSpaces('%s%s' % (utils.TEMPDIR, i)),
+            convertCmd = '%s -y -i %s -b:a 320k %s' % (utils.FFMPEG, utils.formatSpaces('%s%s' % (utils.TEMPDIR, i)),
             utils.replaceExtension('%s%s' % (utils.DOWNLOAD, utils.formatConsole(utils.formatSpaces(mediaFile))), '.mp3'))
+    if utils.PROGRESS:
+        downloadCmd = '%s --newline' % downloadCmd
+        proc = utils.runProgressBarDownload(downloadCmd, quitFilter = False)
+        utils.runProgressBarConvert(convertCmd)
+    else:
+        utils.displayNotification(utils.TITLE, url, '► Downloading Playlist\'s Audio', 'open %s' % utils.DOWNLOAD)
+        proc = utils.runProcess(downloadCmd)
         utils.runProcess(convertCmd)
-    os.system('rm -rf %s' % utils.TEMPDIR)
     utils.displayNotification(utils.TITLE, url, 'Download Complete', 'open %s' % utils.DOWNLOAD)
+    os.system('rm -rf %s' % utils.TEMPDIR)
     utils.sendDiagnostics('downloadPlaylistAudio', downloadCmd, convertCmd, proc)
     
