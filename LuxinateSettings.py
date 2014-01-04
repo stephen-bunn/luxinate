@@ -167,8 +167,8 @@ def checkUpdates():
     import ast
     import urllib2
     import webbrowser
-    updateDict = ast.literal_eval(urllib2.urlopen('https://raw.github.com/Ritashugisha/luxinate/master/Updates/update.txt').read())
-    if updateDict['version'] > utils.VERSION:
+    updateInfo = ast.literal_eval(urllib2.urlopen('https://raw.github.com/Ritashugisha/luxinate/master/Updates/update.txt').read())
+    if updateInfo['version'] > utils.VERSION:
         procCmd = '%s msgbox --title %s --text %s --informative-text %s  --button1 %s --button2 %s --button3 %s --string-output --float' % (utils.COCOA, 
         utils.TITLE, utils.formatSpaces('Luxinate %s is available to update!' % updateInfo['version']),
         utils.formatSpaces('Choose which color of Luxinate you would like to update:'), 'Black', 'White', 'Cancel')
