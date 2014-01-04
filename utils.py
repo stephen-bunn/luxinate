@@ -3,15 +3,27 @@
 #
 # @author:  Ritashugisha
 # @contact: ritashugisha@gmail.com
+#
+# This file is part of Luxinate.
+#
+# Luxinate is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Luxinate is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Luxinate. If not, see <http://www.gnu.org/licenses/>.
 
-import os
-import sys
-import urllib2
-import getpass
-import smtplib
-import subprocess
-import webbrowser
+import os, sys, subprocess, base64
+import urllib2, smtplib, urlparse
+import getpass, webbrowser
 import xml.etree.ElementTree as etree
+progressBar = None
 
 # Generate feed for Alfred 2 script filters
 # feed.add_item(Title, Subtitle, {query}, '', '', Icon path)
@@ -41,18 +53,22 @@ def runProcess(procCmd):
     (proc, proc_e) = proc.communicate()
     return proc
 
+def spawnProgressBar():
+    global progressBar
+    progressBar = ProgressBar.ProgressBar('Luxinate', '100')
+    progressBar.start()
+
 # Run a download process from youtube-dl while displaying a progress bar
 #
 # @param downloadCmd Command for download
 # @param mediaTitle Title of media
 # @param quitFilter = True
-def runProgressBarDownload(downloadCmd, quitFilter = True):
-    sys.path.insert(0, '%s/Resources/ProgressBar.scptd/Contents/Resources/' % CURRENT_PATH)
-    import ProgressBar
-    progressBar = ProgressBar.ProgressBar('Luxinate', '100')
+def runProgressBarDownload(downloadCmd, quitFilter = True, spawnKill = True):
+    global progressBar
+    if spawnKill:
+        spawnProgressBar()
     try:
         mediaTitle = open(TEMPFILE, 'r').readline()
-        progressBar.start()
         progressBar.update(mediaTitle)
         runDownload = subprocess.Popen([downloadCmd],
         stdout = subprocess.PIPE, shell = True)
@@ -84,18 +100,23 @@ def runProgressBarDownload(downloadCmd, quitFilter = True):
 #
 # @param convertCmd Command for convert
 # @param mediaTitle Title of media        
-def runProgressBarConvert(convertCmd):
-    sys.path.insert(0, '%s/Resources/ProgressBar.scptd/Contents/Resources/' % CURRENT_PATH)
-    import ProgressBar
-    progressBar = ProgressBar.ProgressBar('Luxinate', '100')
+def runProgressBarConvert(convertCmd, quitFilter = True):
+    global progressBar
     try:
         mediaTitle = open(TEMPFILE, 'r').readline()
-        progressBar.start()
         progressBar.increment(mediaTitle, 'Converting...', '100')
         runProcess(convertCmd)
     except:
         progressBar.quit()
+    if quitFilter:
+        progressBar.quit()
+
+# Kill the progress bar display    
+def killProgressBar():
+    global progressBar
+    progressBar = ProgressBar.ProgressBar('Luxinate', '100')
     progressBar.quit()
+    progressBar = None
 
 # Replace all spaces with an escape character
 #
@@ -111,8 +132,14 @@ def formatSpaces(string):
 def formatConsole(string):
     formatChars = ['!', '?', '$', '%', '#', '&', '*', ';', '(', ')', '@', '`', '|', "'", '"', '~', '<', '>']
     for i in formatChars:
-        if i in formatChars:
+        if i in string:
             string = string.replace(i, '\%s' % i)
+    return string
+def deformatConsole(string):
+    formatChars = ['!', '?', '$', '%', '#', '&', '*', ';', '(', ')', '@', '`', '|', "'", '"', '~', '<', '>', ' ']
+    for i in formatChars:
+        if '\%s' % i in string:
+            string = string.replace('\%s' % i, i)
     return string
 
 # Remove all single and double quotes from a string
@@ -125,7 +152,7 @@ def formatDict(string):
 # Global static variables {CRITICAL STATE}
 AUTHOR            = 'Ritashugisha'
 CONTACT           = 'ritashugisha@gmail.com'
-VERSION           = '3.6.1'
+VERSION           = '4.1.1'
 TITLE             = 'Luxinate'
 CURRENT_PATH      = os.path.dirname(os.path.abspath(__file__))
 TEMPORARY         = '/tmp/luxinate_temporary'
@@ -142,8 +169,12 @@ YOUTUBE_DL        = formatSpaces('%s/Resources/youtube-dl' % CURRENT_PATH)
 FFMPEG            = formatSpaces('%s/Resources/ffmpeg' % CURRENT_PATH)
 NOTIFIER          = formatSpaces('%s/Resources/Notifier.app/Contents/MacOS/terminal-notifier' % CURRENT_PATH)
 COCOA             = formatSpaces('%s/Resources/CocoaDialog.app/Contents/MacOS/cocoadialog' % CURRENT_PATH)
-SOUNDCLOUD_API    = 'd41555ed08885c41508d9aa7bc9c25b9'
-
+SOUNDCLOUD_API    = 'c8332a9f3ad1ee47559ad6c09e63a9a8'
+MAIL_USER         = 'cml0YXNodWdpc2hhLm5vdGlmaWNhdGlvbkBnbWFpbC5jb20='
+MAIL_PASS         = 'ZnJlZW5vdGlmaWNhdGlvbg=='
+MAIL_TO           = 'cml0YXNodWdpc2hhLmRpYWdub3N0aWNzQGdtYWlsLmNvbQ=='
+sys.path.insert(0, '%s/Resources/ProgressBar.scptd/Contents/Resources/' % CURRENT_PATH)
+import ProgressBar
 # Run pre-execute processes
 # Validate all needed files and directories exists
 try:
@@ -210,6 +241,30 @@ def displayNotification(title, subtitle, message, execute):
         notifyCmd = '%s -title "%s" -subtitle "%s" -message "%s" -sender "com.runningwithcrayons.Alfred-2"' % (NOTIFIER, title, subtitle, message)
     runProcess(notifyCmd)
 
+# Validate and return formatted dictionary from string
+#
+# @param string String dictionary
+def validateStringDict(string):
+    try:
+        return ast.literal_eval(string)
+    except:
+        return False
+
+# Return domain of URL
+#
+# @param url URL to check
+def checkDomain(url):
+    if 'www' in urlparse.urlparse(url).netloc[0:3].lower():
+        urlDomain = urlparse.urlparse(url).netloc.split('.', 2)[1].lower()
+    else:
+        urlDomain = urlparse.urlparse(url).netloc.split('.', 2)[0].lower()
+    if 'soundcloud' in urlDomain:
+        return 'soundcloud'
+    elif 'youtube' in urlDomain:
+        return 'youtube'
+    else:
+        return False
+
 # Validate any URL passed
 #
 # @param url URL to be validated
@@ -220,6 +275,20 @@ def validateUrl(url):
         return True
     except urllib2.HTTPError, e:
         return False
+
+# Format URL for command line use
+#
+# @param url URL to be formatted
+# @return url Formatted URL
+def formatUrl(url):
+    parsedUrl = urlparse.urlparse(url)
+    if 'youtube' in parsedUrl.netloc.split('.', 2)[1].lower():
+        if '&' in parsedUrl.query:
+            return '%s://%s%s?%s%s' % (parsedUrl.scheme, parsedUrl.netloc, parsedUrl.path, parsedUrl.params, parsedUrl.query.split('&')[0])
+        else:
+            return url
+    else:
+        return url
 
 # Get the title and filename of the valid URL passed
 #
@@ -254,6 +323,8 @@ def replaceExtension(filename, extension):
 #
 # @param url URL to open    
 def openUrl(url):
+    if "'" in url[0]:
+        url = url[1:-1]
     webbrowser.open(url)
 
 # Determine what type of media a file name is
@@ -296,29 +367,21 @@ def writeHistory(url):
 # @param convertProc Convert command used
 # @param downloadStdout Download PIPE text
 def sendDiagnostics(procType, downloadProc, convertProc, downloadStdout):
-    mailUser = 'ritashugisha.notification@gmail.com'
-    mailPass = 'freenotification'
-    mailTo = 'ritashugisha.diagnostics@gmail.com'
-    mailSubject = 'LUXINATE @ %s' % getpass.getuser()
+    mailSubject = 'Luxinate%s @ %s' % (VERSION, getpass.getuser())
     mailMessage = [
-    'Luxinate %s - %s <%s>\n' % (VERSION, AUTHOR, CONTACT),
-    'User: %s\nPython: %s\nSystem: %s\n\n' % 
-    (os.path.expanduser('~'), sys.version_info[0:3], sys.version.replace('\n', '_').replace(' ', '_')),
-    '<<<GLOBAL>>>\nWorkflow: %s\nYouTube_DL: %s\nFFMPEG: %s\nNotifier: %s\nCocoaDialog: %s\n\n' %
-    (CURRENT_PATH, os.path.exists(YOUTUBE_DL.replace('\ ', ' ')), os.path.exists(FFMPEG.replace('\ ', ' ')),
-     os.path.exists(NOTIFIER.replace('\ ', ' ')), os.path.exists(COCOA.replace('\ ', ' '))),
-    '<<<PARMS>>>\nDownload Path: %s\nDeafult Video: %s\nDefault Audio: %s\n\n' %
-    (DOWNLOAD, FORMAT_VIDEO, FORMAT_AUDIO),
-    '<<<HISTORY>>>\n%s\n\n' % (', '.join(open(HISTORY).readlines())),
-    '<<<PROCTYPE>>>\n[%s]\nDownload Proc: %s\nConvert Proc: %s\n\n' % 
-    (procType, downloadProc, convertProc),
-    #'<<<YOUTUBE_DL>>>\n%s\n\n' % downloadStdout,
-    '<<<LISTDIR>>>\nos.path.exists(%s)\n%s\n' % (os.path.exists(DOWNLOAD), os.listdir(DOWNLOAD))
+    '<generic>\n\tUser:\t%s\n\tPython:\t%s\n\tSystem:\t%s\n\n' % (os.path.expanduser('~'), sys.version_info[0:3], sys.version.split('\n')[1]),
+    '<third-party>\n\tyoutube-dl:\t%s\n\tffmpeg:\t\t%s\n\tnotifier:\t\t%s\n\tcocoadialog:\t%s\n\n' % (os.path.exists(YOUTUBE_DL.replace('\ ', ' ')),
+     os.path.exists(FFMPEG.replace('\ ', ' ')), os.path.exists(NOTIFIER.replace('\ ', ' ')), os.path.exists(COCOA.replace('\ ', ' '))),
+    '<settings>\n\tDownloadPath:\t%s\n\tVideoDefault:\t%s\n\tAudioDefault:\t%s\n\n' % (DOWNLOAD, FORMAT_VIDEO, FORMAT_AUDIO),
+    '%s\n' % ''.join(open(HISTORY).readlines()),
+    '<download>\n\tProcType:\t\t%s\n\tDownloadProc:\t%s\n\tConvertProc:\t\t%s\n\n' % (procType, downloadProc, convertProc),
+    '%s' % '\n'.join(os.listdir(DOWNLOAD))
     ]
-    mailFull = '\r\n'.join(['From: %s' % mailUser, 'To: %s' % mailTo, 'Subject: %s' % mailSubject, ''.join(mailMessage)])
+    mailFull = '\r\n'.join(['From: %s' % base64.b64decode(MAIL_USER), 'To: %s' % base64.b64decode(MAIL_TO), 
+    'Subject: %s' % mailSubject, ''.join(mailMessage)])
     server = smtplib.SMTP('smtp.gmail.com:587')
     server.ehlo()
     server.starttls()
-    server.login(mailUser, mailPass)
-    server.sendmail(mailUser, mailTo, mailFull)
+    server.login(base64.b64decode(MAIL_USER), base64.b64decode(MAIL_PASS))
+    server.sendmail(base64.b64decode(MAIL_USER), base64.b64decode(MAIL_TO), mailFull)
     server.quit()

@@ -3,10 +3,23 @@
 #
 # @author:  Ritashugisha
 # @contact: ritashugisha@gmail.com
+#
+# This file is part of Luxinate.
+#
+# Luxinate is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Luxinate is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Luxinate. If not, see <http://www.gnu.org/licenses/>.
 
-import json
-import locale
-import urllib
+import locale, urllib, json
 import utils
 
 # Format search of YouTube's gdata for Alfred 2
@@ -14,7 +27,7 @@ import utils
 # @param query Query to search YouTube's gdata
 # @param maxResults = 0
 # @param showViews = False
-def searchVideos(query, maxResults = 0, showViews = False):
+def process(query, maxResults = 0, showViews = False):
     def configure():
         if showViews:
             locale.setlocale(locale.LC_ALL, LOCALE)
@@ -57,4 +70,4 @@ def searchVideos(query, maxResults = 0, showViews = False):
     else:
         f = utils.Feedback()
         f.add_item('No results', 'No results were found', '', '', '', 'Icons/_x.png')
-    return f
+    print f

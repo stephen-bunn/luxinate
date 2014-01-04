@@ -3,6 +3,21 @@
 #
 # @author:  Ritashugisha
 # @contact: ritashugisha@gmail.com
+#
+# This file is part of Luxinate.
+#
+# Luxinate is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Luxinate is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Luxinate. If not, see <http://www.gnu.org/licenses/>.
 
 import utils
 
@@ -39,6 +54,6 @@ def LuxinateBrowser(query, browser):
 #
 # @param query Dictionary of download information    
 def openLuxDefault(query):
-    osaCmd = 'osascript -e \'tell application "Alfred 2" to search "lux ► " & "' + query['url'] + '"\''
+    osaCmd = 'osascript -e \'tell application "Alfred 2" to search "luxinate ► " & "' + query['url'] + '"\''
     utils.runProcess(osaCmd)
     

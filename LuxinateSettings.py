@@ -3,9 +3,64 @@
 #
 # @author:  Ritashugisha
 # @contact: ritashugisha@gmail.com
+#
+# This file is part of Luxinate.
+#
+# Luxinate is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Luxinate is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Luxinate. If not, see <http://www.gnu.org/licenses/>.
 
 import sys
 import utils
+
+# Start up process
+def process():
+    f = utils.Feedback()
+    f.add_item('Download Path', 'Edit where downloads are saved to', '1', '', '', 'Icons/_gear.png')
+    f.add_item('Default Video Download Format', 'Set preferred video download format', '4', '', '', 'Icons/_gear.png')
+    f.add_item('Default Audio Download Format', 'Set preferred audio download format', '5', '', '', 'Icons/_gear.png')
+    f.add_item('Download History', 'View download history', '3', '', '', 'Icons/_gear.png')
+    f.add_item('About', 'About Luxinate', '2', '', '', 'Icons/_gear.png')
+    if utils.PROGRESS:
+        f.add_item(u'Progress Bar \u2611', 'Toggle progress bar', '8', '', '', 'Icons/_gear.png')
+    else:
+        f.add_item(u'Progress Bar \u2610', 'Toggle progress bar', '8', '', '', 'Icons/_gear.png') 
+    f.add_item('Update Luxinate', 'Check for updates', '6', '', '', 'Icons/_gear.png')
+    f.add_item('Install SoundCloud API', 'Requires user password', '7', '', '', 'Icons/_gear.png')
+    print f
+
+# Filter selection to appropiate function
+#
+# @param query Integer of selection
+def parseQuery(query):
+    query = str(query)
+    if query == '1':
+        setDownloadPath()
+    elif query == '2':
+        displayAbout()
+    elif query == '3':
+        displayHistory()
+    elif query == '4':
+        setVideoFormat()
+    elif query == '5':
+        setAudioFormat()
+    elif query == '6':
+        checkUpdates()
+    elif query == '7':
+        installSoundCloudAPI()
+    elif query == '8':
+        toggleProgressBar()
+    else:
+        pass
 
 # Use cocoadialog to set the download path for downloads to be saved
 def setDownloadPath():

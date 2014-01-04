@@ -47,6 +47,11 @@ Current Features:
 		YouTube, and then download the entire playlist’s 
 		video or audio.
 
+	- LuxUser
+		Allows the user to enter the url of a user or channel
+		on either YouTube or SoundCloud, and then download all
+		uploads by that user.
+
 	- LuxSettings
 		Opens an option panel including options that customize
 		the user interaction and advanced settings of

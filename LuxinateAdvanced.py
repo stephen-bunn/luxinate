@@ -3,36 +3,24 @@
 #
 # @author:  Ritashugisha
 # @contact: ritashugisha@gmail.com
+#
+# This file is part of Luxinate.
+#
+# Luxinate is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Luxinate is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Luxinate. If not, see <http://www.gnu.org/licenses/>.
 
-import os
+import os, ast
 import utils
-
-# Evaluate the saved dictionary at TEMPFILE and format feed for Alfred 2 accordingly
-def process():
-    import ast
-    q = ast.literal_eval(open(utils.TEMPFILE, 'r').readlines()[0])
-    feed = utils.Feedback()
-    if q['node'] == 1:
-        for i in getVideoFormats(q['url']):
-            feed.add_item(i[1], q['title'], 
-            "{'node':%s,'url':'%s','title':'%s','file':'%s','extension':'%s','extra_option':'%s'}" % ('1',
-             q['url'], q['title'], q['file'], utils.getExtension(q['file']), i[0]), '', '', 'Icons/_download.png')
-        audioFormats = ['.mp3', '.wav', '.m4a', '.ogg', '.wma', '.mp2', '.acc', '.aiff']
-        for i in audioFormats:
-            feed.add_item(i, q['title'], 
-            "{'node':%s,'url':'%s','title':'%s','file':'%s','extension':'%s', 'extra_option':''}" % ('2',
-            q['url'], q['title'], q['file'], i), '', '', 'Icons/_download.png')
-    elif q['node'] == 2:
-        audioFormats = ['.mp3', '.wav', '.m4a', '.ogg', '.wma', '.mp2', '.acc', '.aiff']
-        for i in audioFormats:
-            feed.add_item(i, q['title'], 
-            "{'node':%s,'url':'%s','title':'%s','file':'%s','extension':'%s', 'extra_option':''}" % ('2',
-             q['url'], q['title'], q['file'], i), '', '', 'Icons/_download.png')
-    elif q['node'] == 3:
-        feed.add_item('No Download', 'Not a feature of Advanced Luxinate', '', '', '', 'Icons/_x.png')
-    else:
-        feed.add_item('Invalid URL', 'Not a feature of Adcanced Luxinate', '', '', '', 'Icons/_x.png')
-    print feed
 
 # Get a list of available formats for the passed URL
 #
@@ -55,6 +43,31 @@ def getVideoFormats(url):
         formatValues.append(i)
     return formatValues
 
+# Evaluate the saved dictionary at TEMPFILE and format feed for Alfred 2 accordingly
+def process():
+    q = ast.literal_eval(utils.deformatConsole(open(utils.TEMPFILE, 'r').readlines()[0]))
+    feed = utils.Feedback()
+    audioFormats = ['.mp3', '.wav', '.m4a', '.ogg', '.wma', '.mp2', '.acc', '.aiff']
+    if q['node'] == 1:
+        for i in getVideoFormats(q['url']):
+            feed.add_item(i[1], q['title'], 
+            "{'node':%s,'url':'%s','title':'%s','file':'%s','extension':'%s','extra_option':'%s'}" % ('1',
+             q['url'], q['title'], q['file'], utils.getExtension(q['file']), i[0]), '', '', 'Icons/_download.png')
+        for i in audioFormats:
+            feed.add_item(i, q['title'], 
+            "{'node':%s,'url':'%s','title':'%s','file':'%s','extension':'%s','extra_option':''}" % ('2',
+            q['url'], q['title'], q['file'], i), '', '', 'Icons/_download.png')
+    elif q['node'] == 2:
+        for i in audioFormats:
+            feed.add_item(i, q['title'], 
+            "{'node':%s,'url':'%s','title':'%s','file':'%s','extension':'%s','extra_option':''}" % ('2',
+             q['url'], q['title'], q['file'], i), '', '', 'Icons/_download.png')
+    elif q['node'] == 3:
+        feed.add_item('No Download', 'Not a feature of Advanced Luxinate', '', '', '', 'Icons/_x.png')
+    else:
+        feed.add_item('Invalid URL', 'Not a feature of Adcanced Luxinate', '', '', '', 'Icons/_x.png')
+    print feed
+
 # Download the video according to the specified parameters
 #
 # @param node Video node (1)
@@ -71,9 +84,10 @@ def advancedDownloadVideo(node, url, extension, fileName, mediaTitle, format):
         downloadCmd = '%s --newline' % downloadCmd
         proc = utils.runProgressBarDownload(downloadCmd)
     else:
-        utils.displayNotification(utils.TITLE, mediaTitle, '► Downloading Video', 'open %s' % utils.DOWNLOAD)
+        utils.displayNotification(utils.TITLE, utils.deformatConsole(mediaTitle), '► Downloading Video', 'open %s' % utils.DOWNLOAD)
         proc = utils.runProcess(downloadCmd)
-    utils.displayNotification(utils.TITLE, url, 'Download Complete', 'open %s' % utils.DOWNLOAD)
+    utils.killProgressBar()
+    utils.displayNotification(utils.TITLE, utils.deformatConsole(mediaTitle), 'Download Complete', 'open %s' % utils.DOWNLOAD)
     utils.sendDiagnostics('advancedDownloadVideo', downloadCmd, '', proc)
 
 # Download the audio according to the specified parameters 
@@ -86,21 +100,32 @@ def advancedDownloadVideo(node, url, extension, fileName, mediaTitle, format):
 # @param format Format value to be passed (null)
 def advancedDownloadAudio(node, url, extension, fileName, mediaTitle, format):
     utils.writeHistory(url)
-    utils.writeTemp(url)
+    utils.writeTemp(url)     
     downloadCmd = '%s %s -o %s' % (utils.YOUTUBE_DL, url, utils.TEMPORARY)
     if extension == '.mp3':
         convertCmd = '%s -y -i %s -b:a 320k %s' % (utils.FFMPEG, 
-        utils.TEMPORARY, '%s%s' % (utils.DOWNLOAD, utils.formatConsole(utils.formatSpaces(utils.replaceExtension(fileName, extension)))))
+        utils.TEMPORARY, '%s%s' % (utils.DOWNLOAD, utils.replaceExtension(fileName, extension)))
     else:
         convertCmd = '%s -y -i %s %s' % (utils.FFMPEG,
-        utils.TEMPORARY, '%s%s' % (utils.DOWNLOAD, utils.formatConsole(utils.formatSpaces(utils.replaceExtension(fileName, extension)))))
+        utils.TEMPORARY, '%s%s' % (utils.DOWNLOAD, utils.replaceExtension(fileName, extension)))
     if utils.PROGRESS:
         downloadCmd = '%s --newline' % downloadCmd
-        proc = utils.runProgressBarDownload(downloadCmd, quitFilter = False)
+        utils.runProgressBarDownload(downloadCmd, quitFilter = False)
+        proc = ''
         utils.runProgressBarConvert(convertCmd)
     else:
-        utils.displayNotification(utils.TITLE, mediaTitle, '► Downloading Audio', 'open %s' % utils.DOWNLOAD)
+        utils.displayNotification(utils.TITLE, utils.deformatConsole(mediaTitle), '► Downloading Audio', 'open %s' % utils.DOWNLOAD)
         proc = utils.runProcess(downloadCmd)
         utils.runProcess(convertCmd)
-    utils.displayNotification(utils.TITLE, mediaTitle, 'Download Complete', 'open %s' % utils.DOWNLOAD)
+    utils.killProgressBar()
+    utils.displayNotification(utils.TITLE, utils.deformatConsole(mediaTitle), 'Download Complete', 'open %s' % utils.DOWNLOAD)
     utils.sendDiagnostics('advancedDownloadAudio', downloadCmd, convertCmd, proc)
+
+# Filter to specified download node
+#
+# @param query Dictionary string with download information
+def parseQuery(query):
+    if query['node'] == 1:
+        advancedDownloadVideo(query['node'], query['url'], query['extension'], query['file'], query['title'], query['extra_option'])
+    else:
+        advancedDownloadAudio(query['node'], query['url'], query['extension'], query['file'], query['title'], query['extra_option'])
