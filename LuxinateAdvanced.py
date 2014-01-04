@@ -19,7 +19,7 @@
 # You should have received a copy of the GNU General Public License
 # along with Luxinate. If not, see <http://www.gnu.org/licenses/>.
 
-import os, ast
+import re, os, ast
 import utils
 
 # Get a list of available formats for the passed URL
@@ -32,11 +32,12 @@ def getVideoFormats(url):
     formatDict = {}
     formatValues = []
     for i in format.split('\n'):
-        if '[youtube]' in i.lower() or 'available' in i.lower():
+        if '[youtube]' in i.lower() or 'available' in i.lower() or 'format code' in i.lower():
             pass
         else:
             try:
-                formatDict[i.replace('\t', '').split(':')[0]] = i.replace('\t', '').split(':')[1].replace('[', ' [')
+                fileFormats = re.sub(' +', ':', i).split(':')
+                formatDict[fileFormats[0]] = '%s  [%s]' % (fileFormats[1], fileFormats[2])
             except IndexError:
                 pass
     for i in formatDict.iteritems():
