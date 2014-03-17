@@ -64,7 +64,7 @@ def parseQuery(query):
 
 # Use cocoadialog to set the download path for downloads to be saved
 def setDownloadPath():
-    proc = '%s fileselect --title %s --text %s --select-only-directories --stirng-output --float' % (utils.COCOA,
+    proc = '%s fileselect --title %s --text %s --select-only-directories --string-output --float' % (utils.COCOA,
     utils.TITLE, utils.formatSpaces('Set where downloads are saved to by default:'))
     result = utils.runProcess(proc)
     if len(result.split('\n')) < 2:
@@ -99,7 +99,7 @@ def setVideoFormat():
         '82':'[3D] MP4 360p', '83':'[3D] MP4 240p', '84':'[3D] MP4 720p', '85':'[3D] MP4 520p', '100':'[3D] WebM 360p', '102':'[3D] WebM 720p'
     }
     videoFormatsList = '"%s"' % '" "'.join(videoFormats.values())
-    procCmd = '%s dropdown --title %s --text %s --items %s --string-output --button1 %s --button2 %s --button3 %s --float' % (utils.COCOA, 
+    procCmd = '%s dropdown --title %s --text %s --items %s --string-output --button1 %s --button2 %s --button3 %s --float --height 150' % (utils.COCOA, 
     utils.TITLE, utils.formatSpaces('Choose desired video format:'), videoFormatsList, 'Ok', 'Cancel', 'Reset')
     desiredFormat = utils.runProcess(procCmd)
     if desiredFormat.split('\n')[0].lower() == 'cancel':
@@ -122,7 +122,7 @@ def setAudioFormat():
         '.mp3':'MP3', '.wav':'WAV', '.ogg':'OGG', '.m4a':'M4A', '.wma':'WMA'
     }
     audioFormatsList = '"%s"' % '" "'.join(audioFormats.values())
-    procCmd = '%s dropdown --title %s --text %s --items %s --string-output --button1 %s --button2 %s --button3 %s --float' % (utils.COCOA, 
+    procCmd = '%s dropdown --title %s --text %s --items %s --string-output --button1 %s --button2 %s --button3 %s --float --height 150' % (utils.COCOA, 
     utils.TITLE, utils.formatSpaces('Choose default audio format:'), audioFormatsList, 'Ok', 'Cancel', 'Reset')
     desiredFormat = utils.runProcess(procCmd)
     if desiredFormat.split('\n')[0].lower() == 'cancel':

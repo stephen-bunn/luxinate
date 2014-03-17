@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>bundleid</key>
-	<string>com.ritashugisha.luxinate.white</string>
+	<string>co.nf.ritashugisha.luxinate</string>
 	<key>connections</key>
 	<dict>
 		<key>0A26F16A-6CB4-4791-AFC8-95C810ECC198</key>
@@ -180,7 +180,7 @@
 	<key>disabled</key>
 	<false/>
 	<key>name</key>
-	<string>Luxinate White</string>
+	<string>Luxinate</string>
 	<key>objects</key>
 	<array>
 		<dict>
@@ -1404,6 +1404,6 @@ Public License instead of this License.  But first, please read
 		</dict>
 	</dict>
 	<key>webaddress</key>
-	<string>ritashugisha@gmail.com</string>
+	<string>http://www.ritashugisha.co.nf</string>
 </dict>
 </plist>

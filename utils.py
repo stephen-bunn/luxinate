@@ -152,7 +152,7 @@ def formatDict(string):
 # Global static variables {CRITICAL STATE}
 AUTHOR            = 'Ritashugisha'
 CONTACT           = 'ritashugisha@gmail.com'
-VERSION           = '4.1.1'
+VERSION           = '5.2.0'
 TITLE             = 'Luxinate'
 CURRENT_PATH      = os.path.dirname(os.path.abspath(__file__))
 TEMPORARY         = '/tmp/luxinate_temporary'
@@ -164,11 +164,12 @@ DOWNLOADS         = '%s/Resources/Settings/downloads' % CURRENT_PATH
 FORMAT_VIDEO_PATH = '%s/Resources/Settings/formatV' % CURRENT_PATH
 FORMAT_AUDIO_PATH = '%s/Resources/Settings/formatA' % CURRENT_PATH
 PROGRESS_BAR      = '%s/Resources/Settings/progressBar' % CURRENT_PATH
+GLYPHSETUP        = formatSpaces('%s/GlyphSetup' % CURRENT_PATH)
 ABOUT             = formatSpaces('%s/Resources/Settings/about' % CURRENT_PATH)
 YOUTUBE_DL        = formatSpaces('%s/Resources/youtube-dl' % CURRENT_PATH)
 FFMPEG            = formatSpaces('%s/Resources/ffmpeg' % CURRENT_PATH)
 NOTIFIER          = formatSpaces('%s/Resources/Notifier.app/Contents/MacOS/terminal-notifier' % CURRENT_PATH)
-COCOA             = formatSpaces('%s/Resources/CocoaDialog.app/Contents/MacOS/cocoadialog' % CURRENT_PATH)
+COCOA             = formatSpaces('%s/Resources/cocoaDialog.app/Contents/MacOS/cocoadialog' % CURRENT_PATH)
 SOUNDCLOUD_API    = 'c8332a9f3ad1ee47559ad6c09e63a9a8'
 MAIL_USER         = 'cml0YXNodWdpc2hhLm5vdGlmaWNhdGlvbkBnbWFpbC5jb20='
 MAIL_PASS         = 'ZnJlZW5vdGlmaWNhdGlvbg=='
@@ -227,6 +228,8 @@ except IOError:
 # Create download directory if it doesn't exist
 if not os.path.exists(DOWNLOAD):
     os.system('mkdir %s' % DOWNLOAD)
+runProcess('%s -dark -dark -light -light' % GLYPHSETUP)
+
 
 # Display a OSX notification
 #
