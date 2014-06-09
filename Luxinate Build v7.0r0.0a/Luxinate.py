@@ -545,7 +545,7 @@ class Luxinate():
             return 0
 
     def default(self, url):
-        if self.hasConnection and self.validUrl(url) and self.supportedUrl(url):
+        if self.hasConnection() and self.validUrl(url) and self.supportedUrl(url):
             feed = Feedback()
             try:
                 (mediatitle, mediafile) = self.getMediaInfo(url)
@@ -561,6 +561,24 @@ class Luxinate():
                     feed.addItem('Unknown Media Type', 'Please report to %s' % AUTHOR, '', '', '', '%s_x.png' % self.binaries.icons)
             except ValueError:
                  feed.addItem('Invalid URL', 'No available downloads from %s' % url, '', '', '', '%s_x.png' % self.binaries.icons)
+        return feed
+
+    def playlist(self, url):
+        if self.hasConnection() and self.validUrl(url) and self.supportedUrl(url):
+            feed = Feedback()
+            try:
+                mediaInfo = self.getMediaInfo(url)
+                self.buildTransfer('', '', url)
+                mediaType = self.getMediaType(mediaInfo[1])
+                if mediaType == 1:
+                    feed.addItem('Download Playlist Video', url, '', '', '', '%s_video.png' % self.binaries.icons)
+                    feed.addItem('Download Playlist Audio', url, '', '', '', '%s_audio.png' % self.binaries.icons)
+                if mediaType == 2:
+                    feed.addItem('Download Playlist Audio', url, '', '', '', '%s_audio.png' % self.binaries.icons)
+                else:
+                    feed.addItem('Unknown Media Type', 'Please report to %s' % AUTHOR, '', '', '', '%s_x.png' % self.binaries.icons)
+            except ValueError:
+                feed.addItem('Invalid URL', 'No available downloads from %s' % url, '', '', '', '%s_x.png' % self.binaries.icons)
         return feed
 
 
@@ -733,6 +751,11 @@ class Download():
         self.binaries.notifier.notification(title = PROGRAM, subtitle = 'Download Complete', sender = self.binaries.sender, 
             message = self.download.mediatitle, sound = 'Glass')
         self.postTag(self.utils.replaceExtension('%s%s' % (self.binaries.config.getDownloadDir(), self.download.mediafile), self.binaries.config.getAudioOpt()))
+
+    # TODO: Add playlistVideo(self)
+
+    def playlistAudio(self):
+        pass
 
 
 """
@@ -1150,9 +1173,6 @@ class Settings():
 
 
 i = Luxinate()
-i.default('https://soundcloud.com/dubstep/arkasia-gravity')
-j = Download()
-j.defaultAudio()
-
+i.playlist('https://soundcloud.com/digitalism_official/sets/wolves-feat-youngblood-hawke-1')
 
 
