@@ -1173,6 +1173,8 @@ class Settings():
 
 
 i = Luxinate()
-i.playlist('https://soundcloud.com/digitalism_official/sets/wolves-feat-youngblood-hawke-1')
+i.default('https://www.youtube.com/watch?v=wMFoqvfKfSQ')
+j = Download()
+j.defaultVideo()
 
 
