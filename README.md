@@ -1,3 +1,5 @@
+# [OUTDATED] _will be updated soon_
+
 #Luxinate<sub>*(v5.2)*</sub>
 
 ---
