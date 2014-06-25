@@ -36,6 +36,7 @@ import subprocess
 import inspect
 import logging
 import urlparse
+import urllib
 import urllib2
 import xml.etree.ElementTree as etree
 import xml.dom.minidom as dom
@@ -188,6 +189,9 @@ class Config():
         program = etree.SubElement(info, 'program')
         program.set('description', DESCRIPTION)
         program.text = PROGRAM
+        python = etree.SubElement(info, 'python')
+        python.set('required', '2.7')
+        python.text = str('%s.%s' % (sys.version_info[0], sys.version_info[1]))
         settings = etree.SubElement(root, 'settings')
         download_dir = etree.SubElement(settings, 'download_dir')
         download_dir.set('default', '%s/Downloads/' % os.path.expanduser('~'))
@@ -537,6 +541,7 @@ class Binaries():
         self.resources    = '%sResources/' % self.workflow
         self.icons        = '%sIcons/' % self.resources
         self.glyphmgr     = '%sGlyphManager' % self.workflow
+        self.qlmdmgr      = '%sQLMarkdown.qlgenerator' % self.resources
         self.pkgmanager   = '%sLuxePrisimPackageManager' % self.workflow
         self.youtube_dl   = '%syoutube-dl' % self.resources
         self.ffmpeg       = '%sffmpeg' % self.resources
@@ -547,6 +552,7 @@ class Binaries():
             {'title':'mstratman.cocoadialog', 'dest':'/Applications', 'loci':self.cocoa.cocoa},
             {'title':'alloy.terminal-notifier', 'dest':'/Applications', 'loci':self.notifier.notifier},
             {'title':'ritashugisha.glyphmanager', 'dest':self.workflow, 'loci':self.glyphmgr},
+            {'title':'manolin.inkmark', 'dest':self.resources, 'loci':self.qlmdmgr},
             {'title':'rg3.youtube-dl', 'dest':self.resources, 'loci':self.youtube_dl},
             {'title':'tessus.ffmpeg', 'dest':self.resources, 'loci':self.ffmpeg},
             {'title':'ritashugisha.luxinateicons', 'dest':self.resources, 'loci':self.icons}]
@@ -1574,6 +1580,107 @@ class Notifier():
 
 
 """
+.. py:class GenMD()
+Used to generate markdown for display.
+"""
+class GenMD():
+
+    """
+    .. py:function __init__(self, theme='yeti')
+    Initialize the markdown generation object.
+    """
+    def __init__(self, theme='yeti'):
+        self.theme = theme
+        self.log = Logger('genmd')
+        self.utils = Utils()
+        self.binaries = Binaries()
+        self.remote = 'https://raw.githubusercontent.com/Ritashugisha/Luxinate/master/RemoteResources/'
+        self.contributors = '%scontributors.json' % self.remote
+
+    """
+    .. displayMD(self, mdString):
+    Display the markdown given in mdString.
+
+    :param str mdString: String containing markdown code
+    """
+    def displayMD(self, mdString):
+        tempLux = tempfile.mkstemp(dir = TMP, prefix = 'Luxinate_Markdown-')[1]
+        self.utils.runProcess('rm -rf %s' % self.utils.formatConsole(tempLux))
+        mdString = '%s%s' % (self.genHeader(), mdString)
+        with open(tempLux, 'w') as bump:
+            bump.write(mdString)
+        self.log.info('displaying markdown from mdString (%s)' % mdString)
+        self.utils.runProcess('qlmanage -p %s -c .md -g %s 2>&1 >/dev/null' % (self.utils.formatConsole(tempLux), 
+            self.utils.formatConsole(self.binaries.qlmdmgr)))
+        self.utils.runProcess('rm -rf %s' % self.utils.formatConsole(tempLux))
+
+    """
+    .. py:function(self, jsonLink)
+    Load and return as json object from the given link.
+
+    :param str jsonLink: Link to a json file
+    """
+    def jsonLoad(self, jsonLink):
+        self.log.info('retreiving json from (%s)' % jsonLink)
+        return json.loads(urllib.urlopen(jsonLink).read())
+
+    """
+    .. py:function genHeader(self)
+    Generate the header for all Luxinate markdowns.
+    """
+    def genHeader(self):
+        self.log.info('generating a markdown header')
+        return '\n'.join(['<link rel="stylesheet" href="http://www.bootswatch.com/%s/bootstrap.css"></link>' % self.theme,
+            '#%s <small>v%sr%s</small>' % (PROGRAM, VERSION, RELEASE),
+            '#####<p class="text-primary">GNU GPLv3 &#8212; %s &#169; %s</p><hr>' % (datetime.datetime.now().strftime('%Y'), AUTHOR)])
+
+    """
+    .. py:function genDonate(self)
+    Generate the donate panel.
+    """
+    def genDonate(self):
+        self.log.info('generating a markdown donate panel')
+        donateLink = ''.join(['https://www.paypal.com/cgi-bin/webscr?cmd=_donations',
+            '&business=AWQDEFGKY96F8&lc=US&item_name=Ritashugisha&item_number=Luxinate',
+            '&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted'])
+        return '\n'.join(['\n\n<div class="jumbotron">', '<h1>Donate<h1>',
+            '<p class="text-muted">Want to support %s\'s continuing development?<br>Donate through <i>PayPal</i> below!</p>' % PROGRAM,
+            '<a href="%s"><button type="button" class="btn btn-default btn-lg btn-block">PayPal</button></a>' % donateLink,
+            '</div>\n\n'])
+
+    """
+    .. py:function genContributors(self)
+    Generate a list of contributors.
+    """
+    def genContributors(self):
+        self.log.info('generating a markdown list of contributors')
+        contributors = ['##Contributors\n']
+        for i in self.jsonLoad(self.contributors)['contributors']:
+            contrib = '\n'.join(['<blockquote>',
+                '<img src="%s" height="100" width="100" alt="%s">' % (i['thumbnail'], i['name']),
+                '<p>&hearts; %s ($%s USD)</p>' % (i['description'], i['donation']),
+                '<small><cite title="Source Title">%s</cite></small>' % i['name'],
+                '</blockquote>'])
+            contributors.append('\n%s\n' % contrib)
+        return ''.join(contributors)
+
+    """
+    .. py:function genSupportedDomains(self)
+    Generate a table of supported domains.
+    """
+    def genSupportedDomains(self):
+        self.log.info('generating a markdown list of supported domains')
+        supported = ['<h2>Supported Domains<h2>\n',
+            '<table class="table table-striped">', '<thread>', '<tr class="info">',
+            '<th>Domain</th>', '</tr>', '</thread>', '<tbody>']
+        for i in self.utils.runProcess('%s --list-extractors' % self.utils.formatConsole(self.binaries.youtube_dl)).split('\n')[:-1]:
+            support = '\n'.join(['<tr>', '<td>%s</td>' % i.replace(':', '/'), '</tr>'])
+            supported.append(support)
+        supported.extend(['</tbody>', '</table>'])
+        return '\n'.join(supported)
+
+
+"""
 .. py:class Settings()
 Used to allow users to edit settings saved in _config.xml
 """
@@ -1602,10 +1709,11 @@ class Settings():
             feed.addItem('Progress Bar', 'Toggle progress bar OFF...', '4', '', '', '%s_check.png' % self.binaries.icons)
         else:
             feed.addItem('Progress Bar', 'Toggle progress bar ON...', '4', '', '', '%s_x.png' % self.binaries.icons)
-        feed.addItem('Display Supported Domains', 'View the list of download supported doamins...', '5', '', '', '%s_edit.png' % self.binaries.icons)
+        feed.addItem('Display Supported Domains', 'View the list of download supported doamins...', '5', '', '', '%s_entry.png' % self.binaries.icons)
         feed.addItem('Display About', 'View information about Luxinate...', '6', '', '', '%s_edit.png' % self.binaries.icons)
         feed.addItem('Reset to Defaults', 'Reset Luxinate\'s configuration to default...', '7', '', '', '%s_edit.png' % self.binaries.icons)
         feed.addItem('View Luxinate Log', 'If you run into errors you may be able to debug with the log...', '8', '', '', '%s_log.png' % self.binaries.icons)
+        feed.addItem('Luxinate Contributors', 'View people who have donated for Luxinate...', '9', '', '', '%s_lux.png' % self.binaries.icons)
         return feed
 
     """
@@ -1632,6 +1740,8 @@ class Settings():
             self.resetToDefaults()
         elif query == 8:
             self.displayLog()
+        elif query == 9:
+            self.displayContributors()
         else:
             pass
 
@@ -1641,8 +1751,11 @@ class Settings():
     """
     def editDownloadDir(self):
         self.log.info('changing download dir')
+        icon_file = '%s_lux.png' % self.binaries.icons
+        if os.path.exists('%s_lux-dark.png' % self.binaries.icons):
+            icon_file = '%s_lux-dark.png' % self.binaries.icons
         editProc = self.binaries.cocoa.fileselect(title = PROGRAM, label = 'Select where downloads should be saved by default...',
-            select_only_directories = True, with_directory = self.binaries.config.getDownloadDir())
+            select_only_directories = True, with_directory = self.binaries.config.getDownloadDir(), icon_file = icon_file)
         if len(editProc) > 0:
             self.binaries.config.editDownloadDir(editProc[0])
             self.log.info('change of download dir successful')
@@ -1659,8 +1772,12 @@ class Settings():
             '3GP 144p':'17', 'MP4 360p':'18', '[3D] MP4 240p':'83', '3GP 240p':'36', 'MP4 1080p':'37', 'WebM 720p':'45', 
             '[3D] WebM 360p':'100', 'WebM 1080p':'46', 'FLV 240p':'5', 'FLV 480p':'35', '[3D] MP4 520p':'85', '[3D] MP4 720p':'84', 
             'FLV 270p':'6', 'WebM 360p':'43'}
+        icon_file = '%s_video.png' % self.binaries.icons
+        if os.path.exists('%s_video-dark.png' % self.binaries.icons):
+            icon_file = '%s_video-dark.png' % self.binaries.icons
         editProc = self.binaries.cocoa.dropdown(title = PROGRAM, label = 'Select your desired video download format...',
-            button1 = 'Select', items = videoFormats.keys(), height = '130', string_output = True, button2 = 'Revert to Default')
+            button1 = 'Select', items = videoFormats.keys(), height = '130', string_output = True, button2 = 'Revert to Default',
+            icon_file = icon_file)
         if 'select' in editProc[0].lower():
             self.binaries.config.editVideoOpt(videoFormats[editProc[1]])
             self.log.info('change of video opt successful')
@@ -1679,8 +1796,12 @@ class Settings():
     def editAudioOpt(self):
         self.log.info('changing audio opt')
         audioFormats = ['.mp3', '.wav', '.ogg', '.m4a', '.wma']
+        icon_file = '%s_audio.png' % self.binaries.icons
+        if os.path.exists('%s_audio-dark.png' % self.binaries.icons):
+            icon_file = '%s_audio-dark.png' % self.binaries.icons
         editProc = self.binaries.cocoa.dropdown(title = PROGRAM, label = 'Select your desired audio download format...',
-            button1 = 'Select', items = audioFormats, height = '130', string_output = True, button2 = 'Revert to Default')
+            button1 = 'Select', items = audioFormats, height = '130', string_output = True, button2 = 'Revert to Default',
+            icon_file = icon_file)
         if 'select' in editProc[0].lower():
             self.binaries.config.editAudioOpt(editProc[1])
             self.log.info('change of audio opt successful')
@@ -1742,9 +1863,11 @@ class Settings():
     Display youtube_dl's latest supported domains in a cocoa textbox.
     """
     def displaySupported(self):
-        self.log.info('displaying supported domains textbox')
-        self.binaries.cocoa.textbox(title = PROGRAM, label = 'Luxinate Supported Domains', text = self.utils.runProcess('%s --list-extractors' % (
-            self.utils.formatConsole(self.binaries.youtube_dl)))[:-1], button1 = 'Ok')
+        self.log.info('displaying supported domains MD')
+        self.binaries.notifier.notification(title = PROGRAM, subtitle = 'Generating Supported Domains', sender = self.binaries.sender,
+            message = 'Building markdown template...', sound = '')
+        markdown = GenMD(theme = 'yeti')
+        markdown.displayMD(markdown.genSupportedDomains())
 
     """
     .. py:function resetToDefaults(self)
@@ -1752,8 +1875,11 @@ class Settings():
     """
     def resetToDefaults(self):
         self.log.info('resetting config\'s current state to defaults')
+        icon_file = '%s_lux.png' % self.binaries.icons
+        if os.path.exists('%s_lux-dark.png' % self.binaries.icons):
+            icon_file = '%s_lux-dark.png' % self.binaries.icons
         editProc = self.binaries.cocoa.msgbox(title = PROGRAM, text = 'Resetting Luxinate to Default Settings...', button1 = 'Yes', button2 = 'No', 
-            informative_text = 'Are you sure you want to continue?')
+            informative_text = 'Are you sure you want to continue?', icon_file = icon_file)
         if int(editProc[0]) == 1:
             self.binaries.config.editDownloadDir('', default = True)
             self.binaries.config.editVideoOpt('', default = True)
@@ -1773,6 +1899,18 @@ class Settings():
     def displayLog(self):
         self.log.info('opening log at (%s) to Console.app' % LOG)
         self.utils.runProcess('open -a "Console.app" %s' % self.utils.formatConsole(LOG))
+
+    """
+    .. py:function displayContributors(self)
+    Display contributors to Luxinate.
+    """
+    def displayContributors(self):
+        self.log.info('displaying contributors MD')
+        self.binaries.notifier.notification(title = PROGRAM, subtitle = 'Retrieving Contributors', sender = self.binaries.sender,
+            message = 'Building markdown template...', sound = '')
+        markdown = GenMD(theme = 'yeti')
+        markdown.displayMD('%s%s' % (markdown.genDonate(), markdown.genContributors()))
+
 
 
 """
@@ -1805,11 +1943,25 @@ class StartUp():
                 if not os.path.exists(self.binaries.notifier.notifier):
                     self.utils.runOsascript('tell application "Alfred 2" to search "Error: missing package manager"')
                 else:
-                    self.binaries.notifier.notification(title = PROGRAM, subtitle = u'\u26A0 WARNING \u26A0',
+                    self.binaries.notifier.notification(title = PROGRAM, subtitle = ':: WARNING ::',
                         message = 'Missing package manager...', sender = self.sender, group = 'lux.warning')
             else:
-                self.binaries.cocoa.msgbox(title = PROGRAM, text = u'\u26A0 WARNING \u26A0',
+                self.binaries.cocoa.msgbox(title = PROGRAM, text = ':: WARNING ::',
                     informative_text = 'Missing package manager...', button1 = 'Ok')
+            sys.exit(0)
+        currentPython = '%s.%s' % (sys.version_info[0], sys.version_info[1])
+        requiredPython = self.binaries.config.getRoot().find('.//python').text
+        if float(currentPython) != float(requiredPython):
+            self.log.critical('invalid version of python (%s)' % currentPython)
+            if not os.path.exists(self.binaries.cocoa.cocoa):
+                if not os.path.exists(self.binaries.notifier.notfier):
+                    self.utils.runOsascript('tell application "Alfred 2" to search "Error: invalid Python version %s"' % currentPython)
+                else:
+                    self.binaries.notifier.notification(title = PROGRAM, subtitle = ':: WARNING ::',
+                        message = 'Invalid Python Version (%s)...' % currentPython, sender = self.sender, group = 'lux.warning')
+            else:
+                self.binaries.cocoa.msgbox(title = PROGRAM, text = ':: WARNING ::',
+                    informative_text = 'Invalid Python Version (%s)...' % currentPython, button1 = 'Ok')
             sys.exit(0)
         missingDependencies = []
         for i in self.binaries.dependencies:
@@ -1821,4 +1973,3 @@ class StartUp():
                 self.utils.runProcess('%s -i %s -o %s' % (self.utils.formatConsole(self.binaries.pkgmanager), 
                     i['title'], self.utils.formatConsole(i['dest'])))
         self.utils.runProcess('%s -dark -dark -light -light --suppress' % self.utils.formatConsole(self.binaries.glyphmgr))
-
