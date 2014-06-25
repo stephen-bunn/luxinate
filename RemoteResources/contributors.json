@@ -1,5 +1,6 @@
 {
 	"contributors":[
-		{"name":"Nick Sweeting", "description":"First Supporter of Luxinate", "thumbnail":"https://avatars3.githubusercontent.com/u/511499?s=400", "donation":"25.00"}
+		{"name":"Nick Sweeting", "description":"First Supporter of Luxinate", "thumbnail":"https://avatars3.githubusercontent.com/u/511499?s=400", "donation":"25.00"},
+        {"name":"TestValue1", "description":"Some description should probably go here", "thumbnail":"http://icons.iconarchive.com/icons/yellowicon/game-stars/256/Mario-icon.png", "donation":"$10.00"}
 	]
 }
