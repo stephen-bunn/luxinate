@@ -27,6 +27,7 @@ import os
 import re
 import sys
 import json
+import types
 import datetime
 import time
 import pickle
@@ -49,7 +50,7 @@ DESCRIPTION = 'Alfred.v2 Streamed Media Downloader'
 VERSION     = '7.0'
 RELEASE     = '1.0a'
 DISCLAIMER  = '%s Ritashugisha - Luxinate' % datetime.datetime.now().strftime('%Y')
-ABOUT       = '''ABOUT HERE'''
+ABOUT       = 'About.md'
 
 # [Program Variables]
 TMP 	= '/tmp/Luxinate/'
@@ -105,9 +106,8 @@ class Feedback():
     Return the parsed script filter feedback as string.
     """
     def __repr__(self):
-        self.log.info('retrieving feedback object at (%s)...' % self.feedback)
         result = etree.tostring(self.feedback)
-        self.log.info('....%s' % result)
+        self.log.info('retrieving feedback object (%s)' % result)
         return result
 
     """
@@ -122,8 +122,7 @@ class Feedback():
     :param str icon: Icon file location of item
     """
     def addItem(self, title, subtitle = '', arg = '', valid = 'yes', autocomplete = '', icon = 'icon.png'):
-        self.log.info('addding item to feedback object at (%s)' % self.feedback)
-        self.log.info('....{"title":"%s", "subtitle":"%s", "arg":"%s", "icon":"%s"}' % (title, subtitle, arg, icon))
+        self.log.info('adding item to feedback {"title":"%s", "subtitle":"%s", "arg":"%s", "icon":"%s"}' % (title, subtitle, arg, icon))
         item = etree.SubElement(self.feedback, 'item', uid = str(len(self.feedback)), arg = arg, valid = valid, autocomplete = autocomplete)
         itemTitle = etree.SubElement(item, 'title')
         itemTitle.text = title
@@ -211,18 +210,28 @@ class Config():
         history = etree.SubElement(root, 'history')
         history.set('results', '0')
         about = etree.SubElement(root, 'about')
-        about.text = ABOUT
+        about.text = 'False'
         self.write(root)
         self.log.info('....config built at (%s)' % self.config)
 
     """
     .. py:function getAbout(self)
-    Retreive the about from the configuration file.
+    Retrieve the about from the configuration file.
     """
     def getAbout(self):
-        self.log.info('retrieving config about')
+        aboutValue = 't' in self.getRoot().find('.//about').text.lower()
+        self.log.info('retrieving config about (%s)' % str(aboutValue))
+        return aboutValue
+
+    """
+    .. py:function toggleAbout(self)
+    Toggle the about value between False and True.
+    """
+    def toggleAbout(self):
         root = self.getRoot()
-        return root.find('.//about').text
+        root.find('.//about').text = str(not self.getAbout())
+        self.log.info('toggling about to (%s)' % str(not self.getAbout()))
+        self.write(root)
 
     """
     .. py:function addHistoryEntry(self, title, url)
@@ -1393,7 +1402,7 @@ class Cocoa():
         else:
             return self.displayCocoa(funct, args, values)
 
-    def ok_msgbox(self, alert = '', button1 = '', button2 = '', button3 = '', cancel = False, debug = False, empty_text = '', height = '', icon = '',
+    def ok_msgbox(self, button = '', button1 = '', button2 = '', button3 = '', cancel = False, debug = False, empty_text = '', height = '', icon = '',
         icon_file = '', icon_height = '', icon_size = '', icon_type = '', icon_width = '', label = '', minimize = False, no_cancel = False, no_float = False,
         no_newline = False, posX = '', posY = '', quiet = False, resize = False, string_output = False, timeout = '', timeout_format = '', title = '', 
         value_required = '', width = ''):
@@ -1518,7 +1527,7 @@ class Cocoa():
         else:
             return self.displayCocoa(funct, args, values)
 
-    def yesno_msgbox(self, alert = '', button1 = '', button2 = '', button3 = '', cancel = False, debug = False, empty_text = '', height = '', icon = '', icon_file = '',
+    def yesno_msgbox(self, button = '', button1 = '', button2 = '', button3 = '', cancel = False, debug = False, empty_text = '', height = '', icon = '', icon_file = '',
         icon_height = '', icon_size = '', icon_type = '', icon_width = '', label = '', minimize = False, no_cancel = False, no_float = False, no_newline = False,
         posX = '', posY = '', quiet = False, resize = False, string_output = False, timeout = '', timeout_format = '', title = '', value_required = '', width = ''):
         frame = inspect.currentframe()
@@ -1590,11 +1599,11 @@ class GenMD():
     Initialize the markdown generation object.
     """
     def __init__(self, theme='yeti'):
-        self.theme = theme
-        self.log = Logger('genmd')
-        self.utils = Utils()
-        self.binaries = Binaries()
-        self.remote = 'https://raw.githubusercontent.com/Ritashugisha/Luxinate/master/RemoteResources/'
+        self.stylesheet   = '<link rel="stylesheet" href="http://www.bootswatch.com/%s/bootstrap.css"></link>' % theme
+        self.log          = Logger('genmd')
+        self.utils        = Utils()
+        self.binaries     = Binaries()
+        self.remote       = 'https://raw.githubusercontent.com/Ritashugisha/Luxinate/master/RemoteResources/'
         self.contributors = '%scontributors.json' % self.remote
 
     """
@@ -1602,17 +1611,102 @@ class GenMD():
     Display the markdown given in mdString.
 
     :param str mdString: String containing markdown code
+    :param bool header: Genereate header if True
     """
-    def displayMD(self, mdString):
+    def displayMD(self, mdString, header=True):
         tempLux = tempfile.mkstemp(dir = TMP, prefix = 'Luxinate_Markdown-')[1]
         self.utils.runProcess('rm -rf %s' % self.utils.formatConsole(tempLux))
-        mdString = '%s%s' % (self.genHeader(), mdString)
+        mdString = '%s\n%s%s' % (self.stylesheet if header else '', self.customGenHeader() if header else '', mdString)
         with open(tempLux, 'w') as bump:
             bump.write(mdString)
         self.log.info('displaying markdown from mdString (%s)' % mdString)
         self.utils.runProcess('qlmanage -p %s -c .md -g %s 2>&1 >/dev/null' % (self.utils.formatConsole(tempLux), 
-            self.utils.formatConsole(self.binaries.qlmdmgr)))
+           self.utils.formatConsole(self.binaries.qlmdmgr)))
         self.utils.runProcess('rm -rf %s' % self.utils.formatConsole(tempLux))
+
+    """
+    .. py:function genImage(self, src, alt='', width='', height='')
+    Generate a simple html image link.
+
+    :param str src: SRC to image
+    :param str alt: ALT of image
+    :param str width: Width of image
+    :param str height: Height of image
+    """
+    def genImage(self, src, alt='', width='', height=''):
+        return '<img src="%s" alt="%s" width="%s" height="%s"/>' % (src, alt, width, height)
+
+    """
+    .. py:function genButton(self, text, size='lg', typ='defualt', block=False)
+    Generate a simple html button.
+
+    :param str text: Text of button
+    :param str size: Size of button ['lg', '', 's', 'xs']
+    :param str typ: Type of button
+    :param bool block: Block button if True
+    """
+    def genButton(self, text, size='lg', typ='default', block=False):
+        return '<button type="button" class="btn btn-%s btn-%s %s">%s</button>' % (typ, size, 'btn-block' if block else '', text)
+
+    """
+    .. py:function genPanel(self, title, text, title_size=4, typ='defualt')
+    Generate a simple html panel.
+
+    :param str title: Title of panel
+    :param str text: Text of panel
+    :param int title_size: Corresponds to h1, h2, h3...
+    :param str typ: Type of panel
+    """
+    def genPanel(self, title, text, title_size=3, typ='default'):
+        return ''.join(['<div class="panel panel-%s"><div class="panel-heading">' % typ,
+            '<h%d class="panel-title">%s</h%d></div><div class="panel-body">%s</div></div>' % (title_size, title, title_size, text)])
+
+    """
+    .. py:function genButton(self, title, text, title_size=4, typ='defualt')
+    Generate a simple html button.
+
+    :param str title: Title of button
+    :param str text: Text of button
+    :param int title_size: Corresponds to h1, h2, h3...
+    :param str typ: Type of button
+    """
+    def genAlert(self, title, text, title_size=4, typ='default'):
+        return ''.join(['<div class="alert alert-dismissable alert-%s"><h%d>%s</h%d>' % (typ, title_size, title, title_size),
+            '<p>%s</p></div>' % text])
+
+    """
+    .. py:function genBlockQuote(self, text, author, pretext='', subtext='', pull_right=False)
+    Generate a simple html blockquote.
+
+    :param str text: Text of quote
+    :param str author: Author's name
+    :param str pretext: Pretext before quote
+    :param str subtext: Text before author's name
+    :param bool pull_right: Justify right if True
+    """
+    def genBlockQuote(self, text, author, pretext='', subtext='', pull_right=False):
+        return ''.join(['<blockquote class="%s">%s<p>%s</p><small>%s<cite class="Source Title">%s</cite></small></blockquote>' % (
+            'pull-right' if pull_right else '', pretext, text, subtext, author)])
+
+    """
+    .. py:function genTable(self, table, typ=[])
+    Generate a simple html table.
+
+    :param str table: Dictionary where key is column header and value is list of values in column
+    :param str typ: List of values of highlight for rows top to bottom
+    """
+    def genTable(self, table, typ=[]):
+        retr = ['<table class="table table-striped table-hover"><thead><tr>',
+            '%s</tr></thead><tbody>' % ''.join(['<th>%s</th>' % i if 'null' not in i else '' for i in table.keys()])]
+        for i in range(0, max([len(j) for j in table.values()])):
+            try:retr.extend(['<tr class="%s">' % typ[i]])
+            except IndexError:retr.extend(['<tr>'])
+            for j in range(0, len(table.values())):
+                try:retr.extend(['<td>%s</td>' % table.values()[j][i]])
+                except IndexError:retr.extend(['<td></td>'])
+            retr.extend(['</tr>'])
+        retr.extend(['</tbody></table>'])
+        return ''.join(retr)
 
     """
     .. py:function(self, jsonLink)
@@ -1621,63 +1715,137 @@ class GenMD():
     :param str jsonLink: Link to a json file
     """
     def jsonLoad(self, jsonLink):
-        self.log.info('retreiving json from (%s)' % jsonLink)
+        self.log.info('retrieving json from (%s)' % jsonLink)
         return json.loads(urllib.urlopen(jsonLink).read())
 
     """
     .. py:function genHeader(self)
     Generate the header for all Luxinate markdowns.
     """
-    def genHeader(self):
+    def customGenHeader(self):
         self.log.info('generating a markdown header')
-        return '\n'.join(['<link rel="stylesheet" href="http://www.bootswatch.com/%s/bootstrap.css"></link>' % self.theme,
-            '#%s <small>v%sr%s</small>' % (PROGRAM, VERSION, RELEASE),
+        return '\n'.join(['#%s <small>v%sr%s</small>' % (PROGRAM, VERSION, RELEASE),
             '#####<p class="text-primary">GNU GPLv3 &#8212; %s &#169; %s</p><hr>' % (datetime.datetime.now().strftime('%Y'), AUTHOR)])
 
     """
     .. py:function genDonate(self)
     Generate the donate panel.
     """
-    def genDonate(self):
+    def customGenDonate(self):
         self.log.info('generating a markdown donate panel')
         donateLink = ''.join(['https://www.paypal.com/cgi-bin/webscr?cmd=_donations',
             '&business=AWQDEFGKY96F8&lc=US&item_name=Ritashugisha&item_number=Luxinate',
             '&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted'])
-        return '\n'.join(['\n\n<div class="jumbotron">', '<h1>Donate<h1>',
+        return ''.join(['<div class="jumbotron"><h1>Donate</h1>',
             '<p class="text-muted">Want to support %s\'s continuing development?<br>Donate through <i>PayPal</i> below!</p>' % PROGRAM,
-            '<a href="%s"><button type="button" class="btn btn-default btn-lg btn-block">PayPal</button></a>' % donateLink,
-            '</div>\n\n'])
+            '<a href="%s">%s</a></div>' % (donateLink, self.genButton('PayPal', block=True))])
+
+    """
+    .. py:function customGenContributor(self, name, description, donation, image='')
+    Generate a contributor for contributors section.
+
+    :param str name: Name of contributor
+    :param str description: Description of contributor
+    :param str donation: Amount donated
+    :param str image: Contributor thumbnail URL
+    """
+    def customGenContributor(self, name, description, donation, image=''):
+        return self.genBlockQuote('<p>&hearts; %s ($%s USD)</p>' % (description, donation), 
+                name, pretext=self.genImage(image, alt=name, width='100', height='100'))
 
     """
     .. py:function genContributors(self)
     Generate a list of contributors.
     """
-    def genContributors(self):
+    def customGenContributors(self):
         self.log.info('generating a markdown list of contributors')
-        contributors = ['##Contributors\n']
+        contributors = ['<p class="lead">Contributors</p>']
         for i in self.jsonLoad(self.contributors)['contributors']:
-            contrib = '\n'.join(['<blockquote>',
-                '<img src="%s" height="100" width="100" alt="%s">' % (i['thumbnail'], i['name']),
-                '<p>&hearts; %s ($%s USD)</p>' % (i['description'], i['donation']),
-                '<small><cite title="Source Title">%s</cite></small>' % i['name'],
-                '</blockquote>'])
-            contributors.append('\n%s\n' % contrib)
+            contributors.extend([self.customGenContributor(i['name'], i['description'], i['donation'], image=i['thumbnail'])])
         return ''.join(contributors)
 
     """
     .. py:function genSupportedDomains(self)
     Generate a table of supported domains.
     """
-    def genSupportedDomains(self):
+    def customGenSupportedDomains(self):
         self.log.info('generating a markdown list of supported domains')
-        supported = ['<h2>Supported Domains<h2>\n',
-            '<table class="table table-striped">', '<thread>', '<tr class="info">',
-            '<th>Domain</th>', '</tr>', '</thread>', '<tbody>']
-        for i in self.utils.runProcess('%s --list-extractors' % self.utils.formatConsole(self.binaries.youtube_dl)).split('\n')[:-1]:
-            support = '\n'.join(['<tr>', '<td>%s</td>' % i.replace(':', '/'), '</tr>'])
-            supported.append(support)
-        supported.extend(['</tbody>', '</table>'])
-        return '\n'.join(supported)
+        supported = [i.replace(':', '/') for i in self.utils.runProcess(
+            '%s --list-extractors' % self.utils.formatConsole(self.binaries.youtube_dl)).split('\n')[:-1]]
+        return ''.join(['<h2>Supported Domains</h2>', self.genTable({'Domain':supported})])
+
+    """
+    .. py:function customGenTest(self)
+    Generate test results from the current state of Luxinate.
+    """
+    def customGenTest(self):
+        infoPanel = [self.genPanel('Program Info', self.genTable({
+            'null0':['AUTHOR','CONTACT','PROGRAM','DESCRIPTION','VERSION'], 
+            'null1':[AUTHOR, CONTACT, PROGRAM, DESCRIPTION, 'v%sr%s' % (VERSION, RELEASE)]}), typ='info')]
+        requirementsContent = []
+        if not os.path.exists(self.binaries.pkgmanager):
+            requirementsContent.extend([self.genAlert('Error!', 
+                'You seem to be missing %s\'s package manager.<p align="right">Please try reinstalling the workflow</p>' % PROGRAM, 
+                typ='danger')])
+        else:
+            requirementsContent.extend([self.genAlert('Validated!', 'Found %s\'s package manager.' % PROGRAM, typ='success')])
+            for i in self.binaries.dependencies:
+                if not os.path.exists(i['loci']):
+                    requirementsContent.extend([self.genAlert('Info!', 'You seem to be missing <strong>%s</strong>.' % i['title'], typ='info')])
+                else:
+                    requirementsContent.extend([self.genAlert('Validated!', 'Found "%s".' % i['title'], typ='success')])
+        currentPython = float('%s.%s' % (sys.version_info[0], sys.version_info[1]))
+        requiredPython = float(self.binaries.config.getRoot().find('.//python').text)
+        if currentPython != requiredPython:
+            requirementsContent.extend([self.genAlert('Error!', 
+                'Your Python version (%s) is throwing an error.<p align="right"><a href="https://www.python.org/downloads/">Grab required version (%s)</a></p>' % (
+                    str(currentPython), str(requiredPython)), typ='danger')])
+        else:
+            requirementsContent.extend([self.genAlert('Validated!', 'You have the correct version of Python (%s)' % requiredPython, typ='success')])
+        requiredModulesTable = {'Modules':[], 'Import Status':[]}
+        requiredModulesStatus = []
+        for i in [v.__name__ for (k, v) in globals().items() if isinstance(v, types.ModuleType)]:
+            requiredModulesTable['Modules'].append(i.upper())
+            try:
+                __import__(i)
+                requiredModulesTable['Import Status'].append('Successfully Imported')
+                requiredModulesStatus.append('success')
+            except ImportError:
+                requiredModulesTable['Import Status'].append('Failed to Import')
+                requiredModulesStatus.append('danger')
+        requirementsContent.extend(self.genTable(requiredModulesTable, typ=requiredModulesStatus))
+        requirementsPanel = self.genPanel('Program Requirements', ''.join(requirementsContent), typ='primary')
+        t1 = time.time()
+        StartUp().startUp()
+        timeStartUp = time.time() - t1
+        t1 = time.time()
+        self.utils.runProcess('%s --playlist-start 1 --playlist-end 1 -qsj https://www.youtube.com/watch?v=is0c_Q9hJrY' % self.utils.formatConsole(self.binaries.youtube_dl))
+        timeMediaInfo = time.time() - t1
+        timePanel = self.genPanel('StartUp Time', ''.join(self.genTable(
+            {'Method':['Start Up', 'Retrieve Media Info'], 'Time (seconds)':[timeStartUp, timeMediaInfo]})), typ='success')
+        return ''.join([''.join(infoPanel), ''.join(requirementsPanel), ''.join(timePanel)])
+
+    # TODO: Cool idea... but overflows quicklook's dedicated
+    #
+    # def customGenLog(self):
+    #     logTable = {'Type':[], 'Function':[], 'Line':[], 'Message':[]}
+    #     logStatus = []
+    #     with open(LOG, 'r') as rett:
+    #         for i in rett:
+    #             if '[' in i[0]:
+    #                 calltype = i[23:31].rsplit()[0]
+    #                 if 'critical' in calltype.lower():
+    #                     logStatus.append('danger')
+    #                 elif 'debug' in calltype.lower():
+    #                     logStatus.append('success')
+    #                 else:
+    #                     logStatus.append(calltype.lower())
+    #                 callback = i[34:].split('>', 1)[0].split(',')
+    #                 logTable['Type'].append(calltype)
+    #                 logTable['Function'].append(callback[0])
+    #                 logTable['Line'].append(callback[1])
+    #                 logTable['Message'].append(i[34:].split('>', 1)[1][4:].split('\n', 1)[0].replace('<', '').replace('>', ''))
+    #     return self.genTable(logTable, typ=logStatus)
 
 
 """
@@ -1710,8 +1878,8 @@ class Settings():
         else:
             feed.addItem('Progress Bar', 'Toggle progress bar ON...', '4', '', '', '%s_x.png' % self.binaries.icons)
         feed.addItem('Display Supported Domains', 'View the list of download supported doamins...', '5', '', '', '%s_entry.png' % self.binaries.icons)
-        feed.addItem('Display About', 'View information about Luxinate...', '6', '', '', '%s_edit.png' % self.binaries.icons)
-        feed.addItem('Reset to Defaults', 'Reset Luxinate\'s configuration to default...', '7', '', '', '%s_edit.png' % self.binaries.icons)
+        feed.addItem('Display About', 'View information about Luxinate...', '6', '', '', '%s_entry.png' % self.binaries.icons)
+        feed.addItem('Test Program State', 'Preferred way to debug errors...', '7', '', '', '%s_log.png' % self.binaries.icons)
         feed.addItem('View Luxinate Log', 'If you run into errors you may be able to debug with the log...', '8', '', '', '%s_log.png' % self.binaries.icons)
         feed.addItem('Luxinate Contributors', 'View people who have donated for Luxinate...', '9', '', '', '%s_lux.png' % self.binaries.icons)
         return feed
@@ -1737,7 +1905,7 @@ class Settings():
         elif query == 6:
             self.displayAbout()
         elif query == 7:
-            self.resetToDefaults()
+            self.testState()
         elif query == 8:
             self.displayLog()
         elif query == 9:
@@ -1854,9 +2022,9 @@ class Settings():
     Display the program's about text in a cocoa textbox.
     """
     def displayAbout(self):
-        self.log.info('displaying about textbox')
-        self.binaries.cocoa.textbox(title = PROGRAM, label = 'Luxinate v%sr%s About' % (VERSION, RELEASE), text = self.binaries.config.getAbout(),
-            button1 = 'Ok')
+        self.log.info('displaying about markdown')
+        markdown = GenMD(theme = 'yeti')
+        markdown.displayMD(open('%s%s' % (self.binaries.workflow, ABOUT), 'r').read(), header=False)
 
     """
     .. py:function displaySupported(self)
@@ -1867,7 +2035,7 @@ class Settings():
         self.binaries.notifier.notification(title = PROGRAM, subtitle = 'Generating Supported Domains', sender = self.binaries.sender,
             message = 'Building markdown template...', sound = '')
         markdown = GenMD(theme = 'yeti')
-        markdown.displayMD(markdown.genSupportedDomains())
+        markdown.displayMD(markdown.customGenSupportedDomains())
 
     """
     .. py:function resetToDefaults(self)
@@ -1901,6 +2069,17 @@ class Settings():
         self.utils.runProcess('open -a "Console.app" %s' % self.utils.formatConsole(LOG))
 
     """
+    .. py:function testState(self)
+    Test Luxinate's current state.
+    """
+    def testState(self):
+        self.log.info('testing program state')
+        self.binaries.notifier.notification(title = PROGRAM, subtitle = 'Testing %s\'s State' % PROGRAM, sender = self.binaries.sender,
+            message = 'Buidling markdown template...', sound = '')
+        markdown = GenMD(theme = 'yeti')
+        markdown.displayMD(markdown.customGenTest())
+
+    """
     .. py:function displayContributors(self)
     Display contributors to Luxinate.
     """
@@ -1909,8 +2088,7 @@ class Settings():
         self.binaries.notifier.notification(title = PROGRAM, subtitle = 'Retrieving Contributors', sender = self.binaries.sender,
             message = 'Building markdown template...', sound = '')
         markdown = GenMD(theme = 'yeti')
-        markdown.displayMD('%s%s' % (markdown.genDonate(), markdown.genContributors()))
-
+        markdown.displayMD('%s%s' % (markdown.customGenDonate(), markdown.customGenContributors()))
 
 
 """
@@ -1973,3 +2151,7 @@ class StartUp():
                 self.utils.runProcess('%s -i %s -o %s' % (self.utils.formatConsole(self.binaries.pkgmanager), 
                     i['title'], self.utils.formatConsole(i['dest'])))
         self.utils.runProcess('%s -dark -dark -light -light --suppress' % self.utils.formatConsole(self.binaries.glyphmgr))
+        if not self.binaries.config.getAbout():
+            self.binaries.config.toggleAbout()
+            Settings().displayAbout()
+
