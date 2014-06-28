@@ -1,4 +1,3 @@
-/* Supports updates on releases past version 7.0 release 1.0alpha */
 {
     "latest":"7.01",
     "preferred":"7.01",
