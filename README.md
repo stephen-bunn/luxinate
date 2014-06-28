@@ -1,4 +1,4 @@
-<center><h1>Luxinate<sub>(_v7.01*alpha*_)</sub></h1></center>
+<center><h1>Luxinate<sub>(_v7.01 - alpha_)</sub></h1></center>
 ##About
 _Luxinate_ is an [Alfred.v2](http://www.alfredapp.com/) workflow designed to automate the use of _youtube-dl_ along with _ffmpeg_ to download and convert streamed media.
 ##Installation
