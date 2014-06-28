@@ -47,7 +47,7 @@ AUTHOR      = 'Ritashugisha'
 CONTACT     = 'ritashugisha@gmail.com'
 PROGRAM     = 'Luxinate'
 DESCRIPTION = 'Alfred.v2 Streamed Media Downloader'
-VERSION     = '7.0'
+VERSION     = '7.02'
 RELEASE     = '1.0a'
 DISCLAIMER  = '%s Ritashugisha - Luxinate' % datetime.datetime.now().strftime('%Y')
 ABOUT       = 'About.md'
@@ -567,6 +567,60 @@ class Binaries():
             {'title':'ritashugisha.luxinateicons', 'dest':self.resources, 'loci':self.icons}]
         self.typeVideo    = ['.flv', '.mp4', '.mov', '.avi', '.mpeg', '.wmv']
         self.typeAudio    = ['.mp3', '.wav', '.m4a', '.ogg', '.flac', '.wma', '.mp2', '.acc', '.aiff']
+
+"""
+.. py:class Updates()
+Used to update resources such as YouTube-DL.
+"""
+class Updates():
+
+    """
+    .. py:function __init__(self)
+    Initialize the updates object.
+    """
+    def __init__(self):
+        self.log = Logger('updates')
+        self.log.info('initialized updates object')
+        self.binaries = Binaries()
+        self.utils = Utils()
+        StartUp().startUp()
+
+    """
+    .. py:function updateYouTubeDL(self)
+    Update to the latest version of YouTube-DL.
+    """
+    def updateYouTubeDL(self):
+        rg3 = json.loads(urllib.urlopen('http://rg3.github.io/youtube-dl/update/versions.json').read())
+        latest = rg3['latest']
+        local = self.utils.runProcess('%s --version' % self.utils.formatConsole(self.binaries.youtube_dl))
+        latestVersion = '.'.join(latest.split('.', 2)[:2])
+        latestRelease = latest.split('.')[-1]
+        localVersion = '.'.join(local.split('.', 2)[:2])
+        localRelease = local.split('.')[-1][:-1]
+        if int(latestRelease) > int(localRelease) or float(latestVersion) > float(localVersion):
+            install = self.binaries.cocoa.msgbox(title = PROGRAM, 
+                text = 'Updates Available!',
+                informative_text = 'YouTube-DL has an available update (%s.%s)' % (latestVersion, latestRelease), 
+                button1 = 'Install', 
+                button2 = 'Ignore')
+            if int(install[0]) == 1:
+                self.log.info('updating youtube-dl (%s.%s) to (%s.%s)' % (localVersion, localRelease, latestVersion, latestRelease))
+                bar = ProgressBar(title = PROGRAM, text = 'Updating YouTube-DL...')
+                bar.update(float(100.0))
+                self.utils.runProcess('rm -rf %s' % self.utils.formatConsole(self.binaries.youtube_dl))
+                self.utils.runProcess('curl %s -o %s && chmod a+x %s' % (rg3['versions'][latest]['bin'][0],
+                    self.utils.formatConsole(self.binaries.youtube_dl), self.utils.formatConsole(self.binaries.youtube_dl)))
+                bar.finish()
+                self.binaries.notifier.notification(title = PROGRAM, 
+                    subtitle = 'Updated YouTube-DL',
+                    message = 'You have been updated from (%s.%s) to (%s.%s)' % (localVersion, localRelease, latestVersion, latestRelease),
+                    sound = 'Purr',
+                    sender = self.binaries.sender)
+        else:
+            self.binaries.cocoa.msgbox(title = PROGRAM, 
+                text = 'No Updates Available', 
+                informative_text = u'\u2665\tThanks for checking though!', 
+                button1 = 'Ok')
 
 
 """
@@ -1257,7 +1311,7 @@ class ProgressBar():
             self.title,
             self.text,
             self.percent, 
-            '%s_lux.png' % self.binaries.icons), 'w')
+            '%sicon.png' % self.binaries.workflow), 'w')
 
     """
     .. py:function update(self, percent, text=False)
@@ -1304,7 +1358,7 @@ class Cocoa():
     def displayCocoa(self, funct, args, values):
         process = '%s %s' % (self.cocoa, funct.replace('_', '-'))
         for i in args[1:]:
-            if (isinstance(values[i], str) or isinstance(values[i], list)) and len(values[i]) > 0:
+            if (isinstance(values[i], str) or isinstance(values[i], unicode) or isinstance(values[i], list)) and len(values[i]) > 0:
                 if isinstance(values[i], list):
                     values[i] = '" "'.join(values[i])
                 process = '%s --%s "%s"' % (process, i.replace('_', '-'), values[i])
@@ -1312,7 +1366,6 @@ class Cocoa():
                 process = '%s --%s' % (process, i.replace('_', '-'))
             else:
                 pass
-        self.log.info('displaying %s' % funct)
         try:
             return self.utils.runProcess(process).split('\n')[:-1]
         except IndexError:
@@ -2154,4 +2207,3 @@ class StartUp():
         if not self.binaries.config.getAbout():
             self.binaries.config.toggleAbout()
             Settings().displayAbout()
-
