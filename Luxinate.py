@@ -1767,7 +1767,10 @@ class Notifier():
             process = self.notifier
             for i in args[1:]:
                 if len(values[i]) > 0:
-                    process = '%s -%s "%s"' % (process, i, values[i].decode('utf-8').encode('utf-8'))
+                    if 'message' in i and '[' in values[i].decode('utf-8').encode('utf-8')[0]:
+                        process = '%s -%s "%s"' % (process, i, values[i].replace('[', '\[').decode('utf-8').encode('utf-8'))
+                    else:
+                        process = '%s -%s "%s"' % (process, i, values[i].decode('utf-8').encode('utf-8'))
             self.utils.runProcess(process)
 
 
