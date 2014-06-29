@@ -1,18 +1,6 @@
-<link rel="stylesheet" href="http://www.bootswatch.com/yeti/bootstrap.css"></link>
-<h1 align="center">Luxinate</h1><p align="center" class="text-muted"><small>Alfred.v2 Streamed Media Downloader</small></p><hr>
-<blockquote class="pull-right">
-    <p>Luxinate has be rebuilt to promote speed and stability for downloading from a ever growing set of supported sites.</p>
-    <small><cite class="Source Title">Ritashugisha</cite></small>
-</blockquote>
-<div class="jumbotron">
-    <h1>Donate</h1>
-    <p class="text-muted">Want to support Luxinate's continuing development?<br>Donate through <i>PayPal</i> below!</p>
-    <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=ritashugisha%40gmail%2ecom&lc=US&item_name=Ritashugisha&item_number=Luxinate&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted"><button type="button" class="btn btn-lg btn-block btn-info">PayPal</button></a>
-</div>
-<h1>Please enjoy &#9829; Ritashugisha</h1><hr>
 ###Overview
 Luxinate's default menu contains several powerful options.
-![01](http://s8.postimg.org/4gkwjxtc5/image.png)<br>
+![01](http://s29.postimg.org/qb11c1g2f/Screen_Shot_2014_06_28_at_12_51_06_AM.png)<br>
 After supplying a URL, you can select whether to download Video, Audio, or Both!
 ![02](http://s8.postimg.org/hgwngdfwl/image.png)<br>
 There is also an action modifier available that allows you to download specific qualities and formats!

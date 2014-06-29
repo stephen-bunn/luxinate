@@ -33,9 +33,11 @@ import time
 import pickle
 import sqlite3
 import tempfile
+import getpass
 import subprocess
 import inspect
 import logging
+import webbrowser
 import urlparse
 import urllib
 import urllib2
@@ -47,10 +49,10 @@ AUTHOR      = 'Ritashugisha'
 CONTACT     = 'ritashugisha@gmail.com'
 PROGRAM     = 'Luxinate'
 DESCRIPTION = 'Alfred.v2 Streamed Media Downloader'
-VERSION     = '7.0'
+VERSION     = '7.01'
 RELEASE     = '1.0a'
-DISCLAIMER  = '%s Ritashugisha - Luxinate' % datetime.datetime.now().strftime('%Y')
-ABOUT       = 'About.md'
+DISCLAIMER  = '%s %s - %s' % (datetime.datetime.now().strftime('%Y'), AUTHOR, PROGRAM)
+ABOUT       = '_about.md'
 
 # [Program Variables]
 TMP 	= '/tmp/Luxinate/'
@@ -552,6 +554,7 @@ class Binaries():
         self.glyphmgr     = '%sGlyphManager' % self.workflow
         self.qlmdmgr      = '%sQLMarkdown.qlgenerator' % self.resources
         self.pkgmanager   = '%sLuxePrisimPackageManager' % self.workflow
+        self.updater      = '%sLuxinateUpdater' % self.workflow
         self.youtube_dl   = '%syoutube-dl' % self.resources
         self.ffmpeg       = '%sffmpeg' % self.resources
         self.sender       = 'com.runningwithcrayons.Alfred-2'
@@ -564,9 +567,96 @@ class Binaries():
             {'title':'manolin.inkmark', 'dest':self.resources, 'loci':self.qlmdmgr},
             {'title':'rg3.youtube-dl', 'dest':self.resources, 'loci':self.youtube_dl},
             {'title':'tessus.ffmpeg', 'dest':self.resources, 'loci':self.ffmpeg},
-            {'title':'ritashugisha.luxinateicons', 'dest':self.resources, 'loci':self.icons}]
+            {'title':'ritashugisha.luxinateicons', 'dest':self.resources, 'loci':self.icons},
+            {'title':'ritashugisha.luxinateupdater', 'dest':self.workflow, 'loci':self.updater}]
         self.typeVideo    = ['.flv', '.mp4', '.mov', '.avi', '.mpeg', '.wmv']
         self.typeAudio    = ['.mp3', '.wav', '.m4a', '.ogg', '.flac', '.wma', '.mp2', '.acc', '.aiff']
+
+"""
+.. py:class Updates()
+Used to update resources such as YouTube-DL.
+"""
+class Updates():
+
+    """
+    .. py:function __init__(self)
+    Initialize the updates object.
+    """
+    def __init__(self):
+        self.log = Logger('updates')
+        self.log.info('initialized updates object')
+        self.binaries = Binaries()
+        self.utils = Utils()
+        self.lux_update = 'https://raw.githubusercontent.com/Ritashugisha/Luxinate/master/Versions/versions.json'
+        self.rg3_update = 'http://rg3.github.io/youtube-dl/update/versions.json'
+        StartUp().startUp()
+
+    """
+    .. py:function updates(self)
+    Luxinate to Alfred interaction for Updates.
+    """
+    def updates(self):
+        feed = Feedback()
+        feed.addItem(PROGRAM, 'Check for any updates for %s...' % PROGRAM, '1', '', '', '%s_update.png' % self.binaries.icons)
+        feed.addItem('YouTube-DL', 'Check for any updates for youtube-dl...', '2', '', '', '%s_update.png' % self.binaries.icons)
+        return feed
+
+    """
+    .. py:function updatesDetermine(self, query)
+    Determine which function to run.
+
+    :param str query: Query used to choose update to run
+    """
+    def updatesDetermine(self, query):
+        query = int(query)
+        if query == 1:
+            self.updateSelf()
+        else:
+            self.updateYouTubeDL()
+
+    """
+    ..py:function updateSelf(self)
+    Run process necessary to update self.
+    """
+    def updateSelf(self):
+        self.utils.runProcess('%s -l "%sLuxinate.py"' % (self.utils.formatConsole(self.binaries.updater), self.binaries.workflow))
+
+    """
+    .. py:function updateYouTubeDL(self)
+    Update to the latest version of YouTube-DL.
+    """
+    def updateYouTubeDL(self):
+        rg3 = json.loads(urllib.urlopen(self.rg3_update).read())
+        latest = rg3['latest']
+        local = self.utils.runProcess('%s --version' % self.utils.formatConsole(self.binaries.youtube_dl))
+        latestVersion = '.'.join(latest.split('.', 2)[:2])
+        latestRelease = latest.split('.')[-1]
+        localVersion = '.'.join(local.split('.', 2)[:2])
+        localRelease = local.split('.')[-1][:-1]
+        if int(latestRelease) > int(localRelease) or float(latestVersion) > float(localVersion):
+            install = self.binaries.cocoa.msgbox(title = PROGRAM, 
+                text = 'Updates Available!',
+                informative_text = 'YouTube-DL has an available update (%s.%s)' % (latestVersion, latestRelease), 
+                button1 = 'Install', 
+                button2 = 'Ignore')
+            if int(install[0]) == 1:
+                self.log.info('updating youtube-dl (%s.%s) to (%s.%s)' % (localVersion, localRelease, latestVersion, latestRelease))
+                bar = ProgressBar(title = PROGRAM, text = 'Updating YouTube-DL...')
+                bar.update(float(100.0))
+                self.utils.runProcess('rm -rf %s' % self.utils.formatConsole(self.binaries.youtube_dl))
+                self.utils.runProcess('curl %s -o %s && chmod a+x %s' % (rg3['versions'][latest]['bin'][0],
+                    self.utils.formatConsole(self.binaries.youtube_dl), self.utils.formatConsole(self.binaries.youtube_dl)))
+                bar.finish()
+                self.binaries.notifier.notification(title = PROGRAM, 
+                    subtitle = 'Updated YouTube-DL',
+                    message = 'You have been updated from (%s.%s) to (%s.%s)' % (localVersion, localRelease, latestVersion, latestRelease),
+                    sound = 'Purr',
+                    sender = self.binaries.sender)
+        else:
+            self.binaries.cocoa.msgbox(title = PROGRAM, 
+                text = 'No Updates Available', 
+                informative_text = u'\u2665\tThanks for checking though!', 
+                button1 = 'Ok')
 
 
 """
@@ -757,13 +847,14 @@ class Luxinate():
 
     :param str url: URL provided
     """
-    def supportedUrl(self, url):
+    def supportedUrl(self, url, default = False):
         try:
             self.log.info('validating url (%s) is supported' % url)
+            extractors = self.utils.runProcess('%s --list-extractors' % self.utils.formatConsole(self.binaries.youtube_dl)).split('\n')[:-1]
             url = urlparse.urlparse(url)
             test1 = url.hostname.split('.')[1]
             test2 = '%s%s' % (test1, url.path.replace('/', ':'))
-            for i in self.utils.runProcess('%s --list-extractors' % self.utils.formatConsole(self.binaries.youtube_dl)).split('\n')[:-1]:
+            for i in extractors:
                 if test1.lower() in i.lower() or test2.lower() in i.lower():
                     return True
             return False
@@ -945,23 +1036,77 @@ class Download():
             pass
 
     """
-    .. py:function progressDownload(self, downloadProc)
+    .. py:function progressDownload(self, downloadProc, override=False)
     Run the download process using a progress bar.
 
     :param str downloadProc: Desired download process
     """
-    def progressDownload(self, downloadProc):
+    def progressDownload(self, downloadProc, override = False, carryon = False):
         self.log.info('beginning progress download using downloadProc (%s)' % downloadProc)
         bar = ProgressBar(title = PROGRAM, text = 'Preparing Download...')
         proc = subprocess.Popen(['%s --newline' % downloadProc], stdout = subprocess.PIPE, shell = True)
+        title = self.download.mediaInfo['fulltitle'] if not override else override
         for i in iter(proc.stdout.readline, ''):
             restdout = re.findall(r'[\w\']+', i)
             destdout = re.findall(r'[-+]?\d*\.\d+|\d+', i)
             if 'download' in restdout[0].lower() and 'destination' not in restdout[1].lower() and len(destdout) > 2:
-                bar.update(float(destdout[0]), text = '[ETA %s:%s] %s' % (destdout[-2], destdout[-1], self.download.mediaInfo['fulltitle']))
-        bar.update(float(100.0), text = 'Finishing...')
-        time.sleep(0.5)
-        bar.finish()
+                bar.update(float(destdout[0]), text = '[ETA %s:%s] %s' % (destdout[-2], destdout[-1], title))
+        if not carryon:
+            bar.update(float(100.0), text = 'Finishing...')
+            time.sleep(0.5)
+            bar.finish()
+        else:
+            return bar
+
+    """
+    .. py:function progressConvert(self, convertProc, override=False, carryon=False)
+    Run the convert process with a progress bar.
+
+    :param str convertProc: Desired convert process
+    """
+    def progressConvert(self, convertProc, override = False, carryon = False, iteration = False):
+        tempLux = tempfile.mkstemp(prefix = 'ffmpeg-', dir = TMP, suffix = '.prog')[1]
+        self.log.info('beginning progress convert using convertProc(%s -y >%s 2>&1)' % (convertProc, self.utils.formatConsole(tempLux)))
+        if not carryon:
+            bar = ProgressBar(title = PROGRAM, text = 'Preparing Convert...')
+        else:
+            bar = carryon
+        proc = subprocess.Popen(['%s -y >%s 2>&1' % (convertProc, self.utils.formatConsole(tempLux))], stdout = subprocess.PIPE, shell = True)
+        title = self.download.mediaInfo['fulltitle'] if not override else override
+        with open(tempLux, 'r') as ffmpeg_prog:
+            ffmpeg_prog_duration = None
+            ffmpeg_prog_current = None
+            while True:
+                ffmpeg_prog_w = ffmpeg_prog.tell()
+                ffmpeg_prog_l = ffmpeg_prog.readline()
+                if not ffmpeg_prog_l:
+                    time.sleep(0.05)
+                    ffmpeg_prog.seek(ffmpeg_prog_w)
+                else:
+                    if re.findall(r'(Duration: [0-9:.]*)', ffmpeg_prog_l.replace('\n', '')):
+                        prog_duration = time.strptime(re.findall(r'(Duration: [0-9:.]*)', 
+                            ffmpeg_prog_l.replace('\n', ''))[0].split(': ')[1].split('.')[0], '%H:%M:%S')
+                        ffmpeg_prog_duration = datetime.timedelta(
+                            hours = prog_duration.tm_hour, 
+                            minutes = prog_duration.tm_min, 
+                            seconds = prog_duration.tm_sec).total_seconds()
+                    elif re.findall(r'(time=[0-9:.]*)', ffmpeg_prog_l.replace('\n', '')):
+                        prog_current = time.strptime(re.findall(r'(time=[0-9:.]*)', 
+                            ffmpeg_prog_l.replace('\n', ''))[0].split('=')[1] .split('.')[0], '%H:%M:%S')
+                        ffmpeg_prog_current = datetime.timedelta(
+                            hours = prog_current.tm_hour,
+                            minutes = prog_current.tm_min, 
+                            seconds = prog_current.tm_sec).total_seconds()
+                        bar.update((ffmpeg_prog_current / ffmpeg_prog_duration) * 100, '[Converting] %s' % title) 
+                    elif re.findall(r'video:(.?)', ffmpeg_prog_l.replace('\n', '')):
+                        break
+        self.utils.runProcess('rm -rf %s' % self.utils.formatConsole(tempLux))
+        if not iteration:
+            bar.update(float(100.0), 'Finishing...')
+            time.sleep(0.8)
+            bar.finish()
+        else:
+            return bar
 
     """
     .. py:function progressDownloadConvert(self, downloadProc, convertProc)
@@ -970,17 +1115,9 @@ class Download():
     :param str downloadProc: Desired download process
     :param str convertProc: Desired convert process
     """
-    def progressDownloadConvert(self, downloadProc, convertProc):
+    def progressDownloadConvert(self, downloadProc, convertProc, override = False):
         self.log.info('beginning progress download convert using downloadProc (%s) convertProc (%s)' % (downloadProc, convertProc))
-        bar = ProgressBar(title = PROGRAM, text = 'Preparing Download...')
-        proc = subprocess.Popen(['%s --newline' % downloadProc], stdout = subprocess.PIPE, shell = True)
-        for i in iter(proc.stdout.readline, ''):
-            restdout = re.findall(r'[\w\']+', i)
-            destdout = re.findall(r'[-+]?\d*\.\d+|\d+', i)
-            if 'download' in restdout[0].lower() and 'destination' not in restdout[1].lower() and len(destdout) > 2:
-                bar.update(float(destdout[0]), text = '[ETA %s:%s] %s' % (destdout[-2], destdout[-1], self.download.mediaInfo['fulltitle']))
-        bar.update(float(100.0), text = '[Converting] %s' % self.download.mediaInfo['fulltitle'])
-        self.utils.runProcess(convertProc)
+        self.progressConvert(convertProc, carryon = self.progressDownload(downloadProc, carryon = True))
 
     """
     .. py:function defaultVideo(self)
@@ -990,26 +1127,30 @@ class Download():
         self.binaries.config.addHistoryEntry(self.download.mediaInfo['fulltitle'], self.download.mediaurl)
         if int(self.binaries.config.getVideoOpt()) != -1:
             self.log.info('setting up download with video opt (%s)' % self.binaries.config.getVideoOpt())
-            downloadProc = 'cd %s;%s -itf %s %s' % (self.utils.formatConsole(self.binaries.config.getDownloadDir()), 
+            downloadProc = 'cd %s;%s -itf %s %s' % (
+                self.utils.formatConsole(self.binaries.config.getDownloadDir()), 
                 self.utils.formatConsole(self.binaries.youtube_dl), 
                 self.binaries.config.getVideoOpt(), 
                 self.download.mediaurl)
         else:
             self.log.info('setting up default download')
-            downloadProc = 'cd %s;%s -it %s' % (self.utils.formatConsole(self.binaries.config.getDownloadDir()), 
+            downloadProc = 'cd %s;%s -it %s' % (
+                self.utils.formatConsole(self.binaries.config.getDownloadDir()), 
                 self.utils.formatConsole(self.binaries.youtube_dl), 
                 self.download.mediaurl)
         if self.binaries.config.getProgressBar():
             self.log.info('download to be run with progressbar')
             self.progressDownload(downloadProc)
         else:
-            self.binaries.notifier.notification(title = PROGRAM, 
+            self.binaries.notifier.notification(
+                title = PROGRAM, 
                 subtitle = '► Downloading Video', 
                 sender = self.binaries.sender,
                 message = self.download.mediaInfo['fulltitle'], 
                 sound = '')
             self.utils.runProcess(downloadProc)
-        self.binaries.notifier.notification(title = PROGRAM, 
+        self.binaries.notifier.notification(
+            title = PROGRAM, 
             subtitle = 'Download Complete', 
             sender = self.binaries.sender,
             message = self.download.mediaInfo['fulltitle'], 
@@ -1029,23 +1170,34 @@ class Download():
         tempLux = tempfile.mkstemp(dir = TMP, prefix = 'tmp_')[1]
         self.utils.runProcess('rm -rf %s' % tempLux)
         if not passConvert:
-            downloadProc = '%s -i %s -o %s' % (self.utils.formatConsole(self.binaries.youtube_dl), 
+            downloadProc = '%s -i %s -o %s' % (
+                self.utils.formatConsole(self.binaries.youtube_dl), 
                 self.download.mediaurl, 
                 tempLux)
             if '.mp3' in self.binaries.config.getAudioOpt():
                 self.log.info('setting up conversion of (.mp3) for (%s)' % self.download.mediaInfo['_filename'])
-                convertProc = '%s -y -i %s -b:a 320k %s' % (self.utils.formatConsole(self.binaries.ffmpeg), 
+                convertProc = '%s -y -i %s -b:a 320k %s' % (
+                    self.utils.formatConsole(self.binaries.ffmpeg), 
                     tempLux, 
-                    self.utils.formatConsole(self.utils.replaceExtension(
-                        '%s%s' % (self.binaries.config.getDownloadDir(), self.download.mediaInfo['_filename']), self.binaries.config.getAudioOpt())))
+                    self.utils.formatConsole(self.utils.replaceExtension('%s%s' % (
+                            self.binaries.config.getDownloadDir(), 
+                            self.download.mediaInfo['_filename']), 
+                        self.binaries.config.getAudioOpt())))
             else:
-                self.log.info('setting up conversion of (%s) for (%s)' % (self.binaries.config.getAudioOpt(), self.download.mediaInfo['_filename']))
-                convertProc = '%s -y -i %s %s' % (self.utils.formatConsole(self.binaries.ffmpeg), 
+                self.log.info('setting up conversion of (%s) for (%s)' % (
+                    self.binaries.config.getAudioOpt(), 
+                    self.download.mediaInfo['_filename']))
+                convertProc = '%s -y -i %s %s' % (
+                    self.utils.formatConsole(self.binaries.ffmpeg), 
                     tempLux, 
-                    self.utils.formatConsole(self.utils.replaceExtension(
-                        '%s%s' % (self.binaries.config.getDownloadDir(), self.download.mediaInfo['_filename']), self.binaries.config.getAudioOpt())))
+                    self.utils.formatConsole(
+                        self.utils.replaceExtension('%s%s' % (
+                            self.binaries.config.getDownloadDir(), 
+                            self.download.mediaInfo['_filename']),
+                        self.binaries.config.getAudioOpt())))
         else:
-            downloadProc = 'cd %s;%s -it %s' % (self.utils.formatConsole(self.binaries.config.getDownloadDir()), 
+            downloadProc = 'cd %s;%s -it %s' % (
+                self.utils.formatConsole(self.binaries.config.getDownloadDir()), 
                 self.utils.formatConsole(self.binaries.youtube_dl), 
                 self.download.mediaurl)
             convertProc = ''
@@ -1057,7 +1209,8 @@ class Download():
             else:
                 self.progressDownload(downloadProc)
         else:
-            self.binaries.notifier.notification(title = PROGRAM, 
+            self.binaries.notifier.notification(
+                title = PROGRAM, 
                 subtitle = '► Downloading Audio', 
                 sender = self.binaries.sender,
                 message = self.download.mediaInfo['fulltitle'], 
@@ -1066,7 +1219,8 @@ class Download():
             if not passConvert:
                 self.utils.runProcess(convertProc)
         self.utils.runProcess('rm -rf %s' % tempLux)
-        self.binaries.notifier.notification(title = PROGRAM, 
+        self.binaries.notifier.notification(
+            title = PROGRAM, 
             subtitle = 'Download Complete', 
             sender = self.binaries.sender, 
             message = self.download.mediaInfo['fulltitle'], 
@@ -1080,68 +1234,83 @@ class Download():
         self.binaries.config.addHistoryEntry(self.download.mediaInfo['fulltitle'], self.download.mediaurl)
         if int(self.binaries.config.getVideoOpt()) != -1:
             self.log.info('setting up download with video opt (%s)' % self.binaries.config.getVideoOpt())
-            downloadProc = 'cd %s;%s -itf %s %s' % (self.utils.formatConsole(self.binaries.config.getDownloadDir()), 
+            downloadProc = 'cd %s;%s -itf %s %s' % (
+                self.utils.formatConsole(self.binaries.config.getDownloadDir()), 
                 self.utils.formatConsole(self.binaries.youtube_dl), 
                 self.binaries.config.getVideoOpt(), 
                 self.download.mediaurl)
         else:
             self.log.info('setting up default download')
-            downloadProc = 'cd %s;%s -it %s' % (self.utils.formatConsole(self.binaries.config.getDownloadDir()), 
+            downloadProc = 'cd %s;%s -it %s' % (
+                self.utils.formatConsole(self.binaries.config.getDownloadDir()), 
                 self.utils.formatConsole(self.binaries.youtube_dl), 
                 self.download.mediaurl)
         if '.mp3' in self.binaries.config.getAudioOpt():
-            convertProc = '%s -y -i %s -b:a 320k %s' % (self.utils.formatConsole(self.binaries.ffmpeg), 
-                self.utils.formatConsole('%s%s' % (self.binaries.config.getDownloadDir(), self.download.mediaInfo['_filename'])),
-                self.utils.formatConsole(self.utils.replaceExtension(
-                    '%s%s' % (self.binaries.config.getDownloadDir(), self.download.mediaInfo['_filename']), self.binaries.config.getAudioOpt())))
+            convertProc = '%s -y -i %s -b:a 320k %s' % (
+                self.utils.formatConsole(self.binaries.ffmpeg), 
+                self.utils.formatConsole('%s%s' % (
+                    self.binaries.config.getDownloadDir(), 
+                    self.download.mediaInfo['_filename'])),
+                self.utils.formatConsole(
+                    self.utils.replaceExtension('%s%s' % (
+                        self.binaries.config.getDownloadDir(), 
+                        self.download.mediaInfo['_filename']), 
+                    self.binaries.config.getAudioOpt())))
         else:
-            convertProc = '%s -y -i %s %s' % (self.utils.formatConsole(self.binaries.ffmpeg), 
-                self.utils.formatConsole('%s%s' % (self.binaries.config.getDownloadDir(), self.download.mediaInfo['_filename'])),
-                self.utils.formatConsole(self.utils.replaceExtension(
-                    '%s%s' % (self.binaries.config.getDownloadDir(), self.download.mediaInfo['_filename']), self.binaries.config.getAudioOpt())))
+            convertProc = '%s -y -i %s %s' % (
+                self.utils.formatConsole(self.binaries.ffmpeg), 
+                self.utils.formatConsole('%s%s' % (
+                    self.binaries.config.getDownloadDir(), 
+                    self.download.mediaInfo['_filename'])),
+                self.utils.formatConsole(self.utils.replaceExtension('%s%s' % (
+                    self.binaries.config.getDownloadDir(), 
+                    self.download.mediaInfo['_filename']), 
+                self.binaries.config.getAudioOpt())))
         if self.binaries.config.getProgressBar():
             self.progressDownloadConvert(downloadProc, convertProc)
         else:
-            self.binaries.notifier.notification(title = PROGRAM, 
+            self.binaries.notifier.notification(
+                title = PROGRAM, 
                 subtitle = '► Downloading Video', 
                 sender = self.binaries.sender,
                 message = self.download.mediaInfo['fulltitle'], 
                 sound = '')
             self.utils.runProcess(downloadProc)
-            self.binaries.notifier.notification(title = PROGRAM, 
+            self.binaries.notifier.notification(
+                title = PROGRAM, 
                 subtitle = '► Downloading Audio', 
                 sender = self.binaries.sender, 
                 message = self.download.mediaInfo['fulltitle'], 
                 sound = '')
             self.utils.runProcess(convertProc)
-        self.binaries.notifier.notification(title = PROGRAM, 
+        self.binaries.notifier.notification(
+            title = PROGRAM, 
             subtitle = 'Download Complete', 
             sender = self.binaries.sender, 
             message = self.download.mediaInfo['fulltitle'], 
             sound = 'Glass')
 
     """
-    .. py:function multiVideo(self, option)
+    .. py:function multiVideo(self)
     Download a multi-sequence list of videos returned by youtube-dl.
-
-    :param str option: Name of operation (playlist/user)
     """
     def multiVideo(self):
         if int(self.binaries.config.getVideoOpt()) != -1:
             self.log.info('setting up multi download with video opt (%s)' % self.binaries.config.getVideoOpt())
-            downloadProc = 'cd %s;%s -itf %s %s' % (self.utils.formatConsole(self.binaries.config.getDownloadDir()), 
+            downloadProc = 'cd %s;%s -itf %s %s' % (
+                self.utils.formatConsole(self.binaries.config.getDownloadDir()), 
                 self.utils.formatConsole(self.binaries.youtube_dl),
                 self.binaries.config.getVideoOpt(), 
                 self.download.mediaurl)
         else:
             self.log.info('setting up default multi download')
-            downloadProc = 'cd %s;%s -it %s' % (self.utils.formatConsole(self.binaries.config.getDownloadDir()), 
+            downloadProc = 'cd %s;%s -it %s' % (
+                self.utils.formatConsole(self.binaries.config.getDownloadDir()), 
                 self.utils.formatConsole(self.binaries.youtube_dl),
                 self.download.mediaurl)
         if self.binaries.config.getProgressBar():
             self.log.info('download to be run with progressbar')
-            proc = subprocess.Popen([downloadProc], stdout = subprocess.PIPE, shell = True)
-            self.binaries.config.editMultiPid(proc.pid)
+            self.progressDownload(downloadProc, override = self.download.mediaurl)
         else:
             proc = subprocess.Popen([downloadProc], stdout = subprocess.PIPE, shell = True)
             self.binaries.config.editMultiPid(proc.pid)
@@ -1149,47 +1318,46 @@ class Download():
                 restdout = re.findall(r'[\w\']+', i)
                 if 'download' in restdout[0].lower() and 'destination' in restdout[1].lower():
                     self.binaries.config.addHistoryEntry('-'.join(i.replace('\n', '').split(': ')[1].split('-')[:-1]), self.download.mediaurl)
-                    self.binaries.notifier.notification(title = PROGRAM,
+                    self.binaries.notifier.notification(
+                        title = PROGRAM,
                         subtitle = '► Downloading Video',
                         sender = self.binaries.sender,
                         message = '-'.join(i.replace('\n', '').split(': ')[1].split('-')[:-1]),
                         sound = '')
         self.binaries.config.editMultiPid('', default = True)
-        self.binaries.notifier.notification(title = PROGRAM, 
+        self.binaries.notifier.notification(
+            title = PROGRAM, 
             subtitle = 'Download Complete', 
             sender = self.binaries.sender,
             message = self.download.mediaurl, 
             sound = 'Glass')
 
     """
-    .. py:function multiAudio(self, option)
+    .. py:function multiAudio(self)
     Download a multi-sequence list of audio returned by youtube-dl.
-
-    :param str option: Name of operation (playlist/user)
     """
     def multiAudio(self):
         passConvert = False
-        if os.path.splitext(self.download.mediaInfo['_filename'][0])[1].lower() in self.binaries.typeAudio and os.path.splitext(
-            self.download.mediaInfo['_filename'][0])[1].lower() in self.binaries.config.getAudioOpt():
+        if os.path.splitext(self.download.mediaInfo['_filename'])[1].lower() in self.binaries.typeAudio and os.path.splitext(
+            self.download.mediaInfo['_filename'])[1].lower() in self.binaries.config.getAudioOpt():
             self.log.info('setting up multi download with no conversion for (%s)' % self.download.mediaInfo['_filename'])
             passConvert = True
         tempLux = tempfile.mkdtemp(dir = TMP, prefix = 'tmp_')
         if not passConvert:
-            downloadProc = 'cd %s;%s -it %s' % (self.utils.formatConsole(tempLux), 
+            downloadProc = 'cd %s;%s -it %s' % (
+                self.utils.formatConsole(tempLux), 
                 self.utils.formatConsole(self.binaries.youtube_dl), 
                 self.download.mediaurl)
         else:
-            downloadProc = 'cd %s;%s -it %s' % (self.utils.formatConsole(self.binaries.config.getDownloadDir()), 
+            downloadProc = 'cd %s;%s -it %s' % (
+                self.utils.formatConsole(self.binaries.config.getDownloadDir()), 
                 self.utils.formatConsole(self.binaries.youtube_dl), 
                 self.download.mediaurl)
-            convertProc = ''
         if self.binaries.config.getProgressBar():
             self.log.info('download to be run with progressbar')
             if not passConvert:
                 self.log.info('convert to be run with progressbar')
-                self.progressDownloadConvert(downloadProc, convertProc)
-            else:
-                self.progressDownload(downloadProc)
+            self.progressDownload(downloadProc, override = self.download.mediaurl)
         else:
             proc = subprocess.Popen([downloadProc], stdout = subprocess.PIPE, shell = True)
             self.binaries.config.editMultiPid(proc.pid)
@@ -1197,33 +1365,50 @@ class Download():
                 restdout = re.findall(r'[\w\']+', i)
                 if 'download' in restdout[0].lower() and 'destination' in restdout[1].lower():
                     self.binaries.config.addHistoryEntry('-'.join(i.replace('\n', '').split(': ')[1].split('-')[:-1]), self.download.mediaurl)
-                    self.binaries.notifier.notification(title = PROGRAM,
+                    self.binaries.notifier.notification(
+                        title = PROGRAM,
                         subtitle = '► Downloading Audio',
                         sender = self.binaries.sender,
                         message = '-'.join(i.replace('\n', '').split(': ')[1].split('-')[:-1]),
                         sound = '')
-            if not passConvert:
-                for i in os.listdir(tempLux):
-                    if '.mp3' in self.binaries.config.getAudioOpt():
-                        self.log.info('setting up conversion of (.mp3) for (%s)' % i)
-                        convertProc = '%s -y -i %s -b:a 320k %s' % (self.utils.formatConsole(self.binaries.ffmpeg), 
-                            self.utils.formatConsole('%s/%s' % (tempLux, i)), 
-                            self.utils.formatConsole(self.utils.replaceExtension('%s/%s' % (tempLux, i), 
-                            self.binaries.config.getAudioOpt())))
+        if not passConvert:
+            bar = None
+            for i in os.listdir(tempLux):
+                if '.mp3' in self.binaries.config.getAudioOpt():
+                    self.log.info('setting up conversion of (.mp3) for (%s)' % i)
+                    convertProc = '%s -y -i %s -b:a 320k %s' % (
+                        self.utils.formatConsole(self.binaries.ffmpeg), 
+                        self.utils.formatConsole('%s/%s' % (tempLux, i)), 
+                        self.utils.formatConsole(self.utils.replaceExtension('%s/%s' % (tempLux, i), 
+                        self.binaries.config.getAudioOpt())))
+                else:
+                    self.log.info('setting up conversion of (%s) for (%s)' % (self.binaries.config.getAudioOpt(), i))
+                    convertProc = '%s -y -i %s %s' % (
+                        self.utils.formatConsole(self.binaries.ffmpeg), 
+                        self.utils.formatConsole('%s/%s' % (tempLux, i)), 
+                        self.utils.formatConsole(self.utils.replaceExtension('%s/%s' % (tempLux, i), 
+                        self.binaries.config.getAudioOpt())))
+                if self.binaries.config.getProgressBar():
+                    if bar != None:
+                        bar = self.progressConvert(convertProc, override = self.download.mediaurl, carryon = bar, iteration = True)
                     else:
-                        self.log.info('setting up conversion of (%s) for (%s)' % (self.binaries.config.getAudioOpt(), i))
-                        convertProc = '%s -y -i %s %s' % (self.utils.formatConsole(self.binaries.ffmpeg), 
-                            self.utils.formatConsole('%s/%s' % (tempLux, i)), 
-                            self.utils.formatConsole(self.utils.replaceExtension('%s/%s' % (tempLux, i), 
-                            self.binaries.config.getAudioOpt())))
+                        bar = self.progressConvert(convertProc, override = self.download.mediaurl, iteration = True)
+                else:
+                    self.binaries.notifier.notification(
+                        title = PROGRAM,
+                        subtitle = '► Converting Audio',
+                        sender = self.binaries.sender,
+                        message = os.path.splitext(i)[0],
+                        sound = '')
                     self.utils.runProcess(convertProc)
-                    self.utils.runProcess('rm -rf %s' % self.utils.formatConsole('%s/%s' % (tempLux, i)))
-                for i in os.listdir(tempLux):
-                    self.utils.runProcess('mv %s %s' % (self.utils.formatConsole('%s/%s' % (tempLux, i)), 
-                        self.utils.formatConsole('%s%s' % (self.binaries.config.getDownloadDir(), i))))
+                self.utils.runProcess('rm -rf %s' % self.utils.formatConsole('%s/%s' % (tempLux, i)))
+            for i in os.listdir(tempLux):
+                self.utils.runProcess('mv %s %s' % (self.utils.formatConsole('%s/%s' % (tempLux, i)), 
+                    self.utils.formatConsole('%s%s' % (self.binaries.config.getDownloadDir(), i))))
         self.utils.runProcess('rm -rf %s' % self.utils.formatConsole(tempLux))
         self.binaries.config.editMultiPid('', default = True)
-        self.binaries.notifier.notification(title = PROGRAM, 
+        self.binaries.notifier.notification(
+            title = PROGRAM, 
             subtitle = 'Download Complete', 
             sender = self.binaries.sender,
             message = self.download.mediaurl, 
@@ -1257,7 +1442,7 @@ class ProgressBar():
             self.title,
             self.text,
             self.percent, 
-            '%s_lux.png' % self.binaries.icons), 'w')
+            '%sicon.png' % self.binaries.workflow), 'w')
 
     """
     .. py:function update(self, percent, text=False)
@@ -1304,7 +1489,7 @@ class Cocoa():
     def displayCocoa(self, funct, args, values):
         process = '%s %s' % (self.cocoa, funct.replace('_', '-'))
         for i in args[1:]:
-            if (isinstance(values[i], str) or isinstance(values[i], list)) and len(values[i]) > 0:
+            if (isinstance(values[i], str) or isinstance(values[i], unicode) or isinstance(values[i], list)) and len(values[i]) > 0:
                 if isinstance(values[i], list):
                     values[i] = '" "'.join(values[i])
                 process = '%s --%s "%s"' % (process, i.replace('_', '-'), values[i])
@@ -1312,7 +1497,6 @@ class Cocoa():
                 process = '%s --%s' % (process, i.replace('_', '-'))
             else:
                 pass
-        self.log.info('displaying %s' % funct)
         try:
             return self.utils.runProcess(process).split('\n')[:-1]
         except IndexError:
@@ -1584,7 +1768,6 @@ class Notifier():
             for i in args[1:]:
                 if len(values[i]) > 0:
                     process = '%s -%s "%s"' % (process, i, values[i].decode('utf-8').encode('utf-8'))
-            self.log.info('displaying %s' % funct)
             self.utils.runProcess(process)
 
 
@@ -1599,11 +1782,11 @@ class GenMD():
     Initialize the markdown generation object.
     """
     def __init__(self, theme='yeti'):
-        self.stylesheet   = '<link rel="stylesheet" href="http://www.bootswatch.com/%s/bootstrap.css"></link>' % theme
+        self.stylesheet   = '<link rel="stylesheet" href="http://www.bootswatch.com/%s/bootstrap.css">' % theme
         self.log          = Logger('genmd')
         self.utils        = Utils()
         self.binaries     = Binaries()
-        self.remote       = 'https://raw.githubusercontent.com/Ritashugisha/Luxinate/master/RemoteResources/'
+        self.remote       = 'https://raw.githubusercontent.com/Ritashugisha/Luxinate/master/Versions/'
         self.contributors = '%scontributors.json' % self.remote
 
     """
@@ -1728,17 +1911,15 @@ class GenMD():
             '#####<p class="text-primary">GNU GPLv3 &#8212; %s &#169; %s</p><hr>' % (datetime.datetime.now().strftime('%Y'), AUTHOR)])
 
     """
-    .. py:function genDonate(self)
+    .. py:function customGenDonate(self)
     Generate the donate panel.
     """
     def customGenDonate(self):
         self.log.info('generating a markdown donate panel')
-        donateLink = ''.join(['https://www.paypal.com/cgi-bin/webscr?cmd=_donations',
-            '&business=AWQDEFGKY96F8&lc=US&item_name=Ritashugisha&item_number=Luxinate',
-            '&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted'])
+        donateLink = self.jsonLoad(self.contributors)['donate_link']
         return ''.join(['<div class="jumbotron"><h1>Donate</h1>',
             '<p class="text-muted">Want to support %s\'s continuing development?<br>Donate through <i>PayPal</i> below!</p>' % PROGRAM,
-            '<a href="%s">%s</a></div>' % (donateLink, self.genButton('PayPal', block=True))])
+            '<a href="%s">%s</a></div>' % (donateLink, self.genButton('PayPal', block=True, typ='info'))])
 
     """
     .. py:function customGenContributor(self, name, description, donation, image='')
@@ -1754,7 +1935,7 @@ class GenMD():
                 name, pretext=self.genImage(image, alt=name, width='100', height='100'))
 
     """
-    .. py:function genContributors(self)
+    .. py:function customGenContributors(self)
     Generate a list of contributors.
     """
     def customGenContributors(self):
@@ -1765,7 +1946,7 @@ class GenMD():
         return ''.join(contributors)
 
     """
-    .. py:function genSupportedDomains(self)
+    .. py:function customGenSupportedDomains(self)
     Generate a table of supported domains.
     """
     def customGenSupportedDomains(self):
@@ -1773,6 +1954,19 @@ class GenMD():
         supported = [i.replace(':', '/') for i in self.utils.runProcess(
             '%s --list-extractors' % self.utils.formatConsole(self.binaries.youtube_dl)).split('\n')[:-1]]
         return ''.join(['<h2>Supported Domains</h2>', self.genTable({'Domain':supported})])
+
+    """
+    .. py:function customGenAbout(self):
+    Genearte the about markdown.
+    """
+    def customGenAbout(self):
+        customGen = [self.genBlockQuote('%s has be rebuilt to promote speed and stability for downloading from a ever growing set of supported sites.' % PROGRAM,
+            'Ritashugisha', pull_right=True), self.customGenDonate(), '<h1 align="center">Hey, %s!</h1>' % getpass.getuser().title(),
+            '<center><p class="lead">Thanks for downloading %s &hearts;</p></center>' % PROGRAM, 
+            '<p>Remember, that if you run into any bugs or problems don\'t hesitate to ask me at `%s` or on the ' % CONTACT,
+            '<a href="http://www.alfredforum.com/topic/3238-luxinate-download-video-and-audio-from-youtube-and-soundcloud/">Alfred Forum</a>.</p><hr>\n']
+        customGen.append(open('%s%s' % (self.binaries.workflow, ABOUT), 'r').read())
+        return ''.join(customGen)
 
     """
     .. py:function customGenTest(self)
@@ -1789,11 +1983,16 @@ class GenMD():
                 typ='danger')])
         else:
             requirementsContent.extend([self.genAlert('Validated!', 'Found %s\'s package manager.' % PROGRAM, typ='success')])
+            dependenciesTable = {'Dependency':[], 'Status':[]}
+            dependenciesStatus = []
             for i in self.binaries.dependencies:
+                dependenciesTable['Dependency'].append(i['title'].upper())
                 if not os.path.exists(i['loci']):
-                    requirementsContent.extend([self.genAlert('Info!', 'You seem to be missing <strong>%s</strong>.' % i['title'], typ='info')])
+                    dependenciesTable['Status'].append('Missing')
+                    dependenciesStatus.append('danger')
                 else:
-                    requirementsContent.extend([self.genAlert('Validated!', 'Found "%s".' % i['title'], typ='success')])
+                    dependenciesTable['Status'].append('Found')
+                    dependenciesStatus.append('success')
         currentPython = float('%s.%s' % (sys.version_info[0], sys.version_info[1]))
         requiredPython = float(self.binaries.config.getRoot().find('.//python').text)
         if currentPython != requiredPython:
@@ -1813,6 +2012,7 @@ class GenMD():
             except ImportError:
                 requiredModulesTable['Import Status'].append('Failed to Import')
                 requiredModulesStatus.append('danger')
+        requirementsContent.extend(self.genTable(dependenciesTable, typ=dependenciesStatus))
         requirementsContent.extend(self.genTable(requiredModulesTable, typ=requiredModulesStatus))
         requirementsPanel = self.genPanel('Program Requirements', ''.join(requirementsContent), typ='primary')
         t1 = time.time()
@@ -1878,10 +2078,10 @@ class Settings():
         else:
             feed.addItem('Progress Bar', 'Toggle progress bar ON...', '4', '', '', '%s_x.png' % self.binaries.icons)
         feed.addItem('Display Supported Domains', 'View the list of download supported doamins...', '5', '', '', '%s_entry.png' % self.binaries.icons)
-        feed.addItem('Display About', 'View information about Luxinate...', '6', '', '', '%s_entry.png' % self.binaries.icons)
+        feed.addItem('Display About', 'View information about %s...' % PROGRAM, '6', '', '', '%s_entry.png' % self.binaries.icons)
         feed.addItem('Test Program State', 'Preferred way to debug errors...', '7', '', '', '%s_log.png' % self.binaries.icons)
-        feed.addItem('View Luxinate Log', 'If you run into errors you may be able to debug with the log...', '8', '', '', '%s_log.png' % self.binaries.icons)
-        feed.addItem('Luxinate Contributors', 'View people who have donated for Luxinate...', '9', '', '', '%s_lux.png' % self.binaries.icons)
+        feed.addItem('View %s Log' % PROGRAM, 'If you run into errors you may be able to debug with the log...', '8', '', '', '%s_log.png' % self.binaries.icons)
+        feed.addItem('%s Contributors' % PROGRAM, 'View people who have donated for %s...' % PROGRAM, '9', '', '', '%s_lux.png' % self.binaries.icons)
         return feed
 
     """
@@ -2002,10 +2202,12 @@ class Settings():
     :param str query: Number 0 or >0
     """
     def clearHistory(self, query):
-        if int(query) > 0:
+        if self.utils.isInt(query) and int(query) > 0:
             self.binaries.config.clearHistory()
-        self.binaries.notifier.notification(title = PROGRAM, subtitle = 'Cleared History', sender = self.binaries.sender,
-            message = 'Removed all history entries', sound = 'Purr')
+            self.binaries.notifier.notification(title = PROGRAM, subtitle = 'Cleared History', sender = self.binaries.sender,
+                message = 'Removed all history entries', sound = 'Purr')
+        else:
+            webbrowser.open(query)
 
     """
     .. py:function toggleProgressBar(self)
@@ -2023,8 +2225,14 @@ class Settings():
     """
     def displayAbout(self):
         self.log.info('displaying about markdown')
+        self.binaries.notifier.notification(
+            title = PROGRAM, 
+            subtitle = 'Displaying About', 
+            message = 'Building markdown template...', 
+            sender = self.binaries.sender, 
+            sound = '')
         markdown = GenMD(theme = 'yeti')
-        markdown.displayMD(open('%s%s' % (self.binaries.workflow, ABOUT), 'r').read(), header=False)
+        markdown.displayMD(markdown.customGenAbout())
 
     """
     .. py:function displaySupported(self)
@@ -2032,8 +2240,12 @@ class Settings():
     """
     def displaySupported(self):
         self.log.info('displaying supported domains MD')
-        self.binaries.notifier.notification(title = PROGRAM, subtitle = 'Generating Supported Domains', sender = self.binaries.sender,
-            message = 'Building markdown template...', sound = '')
+        self.binaries.notifier.notification(
+            title = PROGRAM, 
+            subtitle = 'Generating Supported Domains', 
+            sender = self.binaries.sender,
+            message = 'Building markdown template...', 
+            sound = '')
         markdown = GenMD(theme = 'yeti')
         markdown.displayMD(markdown.customGenSupportedDomains())
 
@@ -2043,11 +2255,11 @@ class Settings():
     """
     def resetToDefaults(self):
         self.log.info('resetting config\'s current state to defaults')
-        icon_file = '%s_lux.png' % self.binaries.icons
-        if os.path.exists('%s_lux-dark.png' % self.binaries.icons):
-            icon_file = '%s_lux-dark.png' % self.binaries.icons
-        editProc = self.binaries.cocoa.msgbox(title = PROGRAM, text = 'Resetting Luxinate to Default Settings...', button1 = 'Yes', button2 = 'No', 
-            informative_text = 'Are you sure you want to continue?', icon_file = icon_file)
+        editProc = self.binaries.cocoa.msgbox(title = PROGRAM, 
+            text = 'Resetting %s to Default Settings...' % PROGRAM, 
+            button1 = 'Yes', button2 = 'No', 
+            informative_text = 'Are you sure you want to continue?', 
+            icon_file = '%sicon.png' % self.binaries.workflow)
         if int(editProc[0]) == 1:
             self.binaries.config.editDownloadDir('', default = True)
             self.binaries.config.editVideoOpt('', default = True)
@@ -2057,8 +2269,11 @@ class Settings():
                 self.binaries.config.toggleProgressBar()
             self.binaries.config.clearHistory()
             self.log.info('reset successful')
-            self.binaries.notifier.notification(title = PROGRAM, subtitle = 'Luxinate Reset to Defaults', sender = self.binaries.sender,
-                message = 'Reset Successful', sound = 'Purr')
+            self.binaries.notifier.notification(title = PROGRAM, 
+                subtitle = '%s Reset to Defaults' % PROGRAM, 
+                sender = self.binaries.sender,
+                message = 'Reset Successful', 
+                sound = 'Purr')
 
     """
     .. py:function displayLog(self)
@@ -2154,4 +2369,3 @@ class StartUp():
         if not self.binaries.config.getAbout():
             self.binaries.config.toggleAbout()
             Settings().displayAbout()
-
