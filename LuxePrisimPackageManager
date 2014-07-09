@@ -74,6 +74,19 @@ def onVerbose(message, display):
 		header = '%s<%s@%s>' % (os.path.basename(__file__), info.function, info.lineno)
 		sys.stdout.write('%s%s%s\n' % (header, ' ' * (40 - len(header)), message))
 
+"""
+.. py:function formatConsole(self, string)
+Escape unfriendly characters from a string.
+
+:param str string: String to be escaped
+"""
+def formatConsole(string):
+    bannedChars = ['!', '?', '$', '%', '#', '&', '*', ';', '(', ')', '@', '`', '|', "'", '"', '~', '<', '>', ' ']
+    for i in bannedChars:
+        if i in string:
+            string = string.replace(i, '\%s' % i)
+    return string
+
 
 """
 .. py:class:: PackageManager()
@@ -338,9 +351,9 @@ class PackageManager():
 				newDownload = urllib.urlretrieve('%s%s' % (MAIN, i['link']), newSave[1])
 				onVerbose('downloading "%s" to "%s"' % (i['name'], newSave[1]), self.verbose)
 				if not os.path.exists(i['dest']):
-					__runProcess__('mkdir %s' % i['dest'].replace(' ', '\ '))
+					__runProcess__('mkdir %s' % formatConsole(i['dest']))
 				onVerbose('installing "%s" to "%s"' % (i['name'], i['dest']), self.verbose)
-				__runProcess__('tar xopf %s -C %s' % (newSave[1], i['dest'].replace(' ', '\ ')))
+				__runProcess__('tar xopf %s -C %s' % (newSave[1], formatConsole(i['dest'])))
 				__runProcess__('rm -rf %s' % newSave[1])
 		except Exception as e:
 			onError(type(e).__name__, e)
