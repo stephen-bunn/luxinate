@@ -1,6 +1,7 @@
 {
     "donate_link":"http://goo.gl/LlJjzg",
 	"contributors":[
-		{"name":"Nick Sweeting", "description":"First Supporter of Luxinate", "thumbnail":"https://avatars3.githubusercontent.com/u/511499?s=400", "donation":"25.00"}
+		{"name":"Nick Sweeting", "description":"First Supporter of Luxinate", "thumbnail":"https://avatars3.githubusercontent.com/u/511499?s=400", "donation":"25.00"},
+        {"name":"John Yull", "description":"Loving supporter of Luxinate", "thumbnail":"http://s22.postimg.org/gotbnwhkx/heart.png", "donation":"20.00"}
 	]
 }
