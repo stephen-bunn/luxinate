@@ -820,7 +820,7 @@ class Luxinate():
     """
     def hasConnection(self):
         try:
-            urllib2.urlopen('http://74.125.228.100', timeout = 1)
+            urllib2.urlopen('http://google.com', timeout = 1)
             return True
         except urllib2.URLError:
             pass
