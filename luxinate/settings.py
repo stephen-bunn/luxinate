@@ -108,6 +108,34 @@ class Settings(
         elif btn == 3:
             webbrowser.open(self._global.outtmpl_link)
 
+    # TODO: Find a way to streamline these conversion dropdowns
+    def conversion_format(self):
+        available_formats = self._global.settings_options['audio_format']
+        available_formats.insert(
+            0,
+            available_formats.pop(
+                available_formats.index(self.settings['audio_format'])
+            )
+        )
+        resp = self._global.cd_client.standard_dropdown(
+            title='{} Settings'.format(self._global.module_name),
+            text='Please select your preferred audio conversion format...',
+            items=available_formats,
+            height=125,
+        )
+        if int(resp[0]) == 1:
+            new_format = available_formats[int(resp[1])]
+            if self.settings['audio_format'] != new_format:
+                self.settings['audio_format'] = new_format
+                self.save(self.storage, self.settings)
+                self._global.tn_client.notify(
+                    title='{} Settings'.format(self._global.module_name),
+                    subtitle='Modified preferred audio conversion format',
+                    message=self.settings['audio_format'],
+                    sender=self._global.notify_sender,
+                    group=self._global.notify_group
+                )
+
     def conversion_bitrate(self):
         available_bitrates = self._global.settings_options['audio_bitrate']
         available_bitrates.insert(
@@ -134,6 +162,15 @@ class Settings(
                     sender=self._global.notify_sender,
                     group=self._global.notify_group
                 )
+
+    def show_log(self):
+        # HACK: Relying on unstable and dynamic log handler at index 0
+        self._global._run_subprocess([
+            'open', '-a', 'Console.app',
+            os.path.abspath(os.path.realpath(
+                self.log.handlers[0].baseFilename
+            ))
+        ])
 
     def scriptfilter(self):
         _filter = self._global.ab.wrapper('scriptfilter')
@@ -162,10 +199,24 @@ class Settings(
             icon=self._global.icons['tags']
         )
         _filter.add(
+            title='Conversion Format',
+            subtitle='Edit the preferred audio conversion format',
+            arg='"conversion_format"',
+            icon=self._global.icons['musical-note']
+        )
+        _filter.add(
             title='Conversion Bitrate',
             subtitle='Edit the preferred audio conversion bitrate',
             arg='"conversion_bitrate"',
             icon=self._global.icons['headphones']
+        )
+        _filter.add(
+            title='Show {} Log'.format(self._global.module_name),
+            subtitle='View the stored log, used for debugging {}'.format(
+                self._global.module_name
+            ),
+            arg='"show_log"',
+            icon=self._global.icons['code']
         )
         return _filter
 

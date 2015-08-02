@@ -76,6 +76,10 @@ class Client(MetaLogged.Logged, MetaGlobalAccess.GlobalAccess):
         return self._history.scriptfilter(query)
 
     def default(self, url):
+
+        def _build_arg(info, **kwargs):
+            return unicode(self._global._merge_dicts(info, kwargs))
+
         _filter = self._global.ab.wrapper('scriptfilter')
         if self._global._has_connection():
             if self._global._match_url(url):
@@ -89,26 +93,33 @@ class Client(MetaLogged.Logged, MetaGlobalAccess.GlobalAccess):
                         _filter.add(
                             title='Download Video',
                             subtitle=info['title'],
-                            arg=unicode(self._global._merge_dicts(
-                                info, dict([('download_type', 0x01,)])
-                            )),
+                            arg=_build_arg(
+                                info,
+                                download_type=self._global._download_type(
+                                    self._global.DownloadType.video
+                                )
+                            ),
                             icon=self._global.icons['video']
                         )
                     _filter.add(
                         title='Download Audio',
                         subtitle=info['title'],
-                        arg=unicode(self._global._merge_dicts(
-                            info, dict([('download_type', 0x02,)])
-                        )),
+                        arg=_build_arg(
+                            info,
+                            download_type=self._global._download_type(
+                                self._global.DownloadType.audio
+                            )
+                        ),
                         icon=self._global.icons['audio']
                     )
                     if requires_convert:
                         _filter.add(
                             title='Download Video & Audio',
                             subtitle=info['title'],
-                            arg=unicode(
-                                self._global._merge_dicts(
-                                    info, dict([('download_type', 0x04,)])
+                            arg=_build_arg(
+                                info,
+                                download_type=self._global._download_type(
+                                    self._global.DownloadType.combi
                                 )
                             ),
                             icon=self._global.icons['ellipses']
@@ -126,6 +137,13 @@ class Client(MetaLogged.Logged, MetaGlobalAccess.GlobalAccess):
                         subtitle='Please retry entering your query',
                         arg=None,
                         icon=self._global.icons['link-broken']
+                    )
+                except Exception, err:
+                    _filter.add(
+                        title='Unknown error occurred',
+                        subtitle=err.message,
+                        arg=None,
+                        icon=self._global.icons['x']
                     )
             else:
                 _filter.add(

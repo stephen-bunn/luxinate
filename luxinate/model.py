@@ -77,7 +77,7 @@ class Model(
                 ))
             else:
                 self.download_type = \
-                    self._global.download_type_dict[self.info['download_type']]
+                    self._global._download_type(self.info['download_type'])
         self.url = self.info['webpage_url']
         self.multiple = ('_type' in self.info.keys())
 

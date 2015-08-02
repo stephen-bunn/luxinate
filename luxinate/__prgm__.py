@@ -105,6 +105,12 @@ class Globals(MetaSingleton.Singleton):
     }
     history_mod_item_blacklist = ['requested_formats', 'formats']
 
+    # downloader variable globals
+    class DownloadType(enum.Enum):
+        video = 0x01
+        audio = 0x02
+        combi = 0x04
+
     # converter variable globals
     ffmpeg_progress_read_time_buffer = 0.05
     ffmpeg_duration_regex = ur'(Duration: [0-9:.]*)'
@@ -116,18 +122,6 @@ class Globals(MetaSingleton.Singleton):
         'mpc', 'msv', 'ogg', 'oga', 'opus', 'ra', 'rm', 'raw', 'sln', 'tta',
         'vox', 'wav', 'wma', 'wv', 'webm'
     ]
-
-    # downloader variable globals
-    class DownloadType(enum.Enum):
-        video = 0x01
-        audio = 0x02
-        combi = 0x04
-
-    download_type_dict = {
-        0x01: DownloadType.video,
-        0x02: DownloadType.audio,
-        0x04: DownloadType.combi
-    }
 
     # connection information
     http_test_connection = 'http://www.google.com'
@@ -159,6 +153,8 @@ class Globals(MetaSingleton.Singleton):
         'delete': ('open-iconic', 'delete', 'ffffff',),
         'entry': ('open-iconic', 'chevron-right', 'ffffff',),
         'headphones': ('open-iconic', 'headphones', 'ffffff',),
+        'musical-note': ('open-iconic', 'musical-note', 'ffffff',),
+        'code': ('open-iconic', 'code', 'ffffff',),
     }
 
     # notification information
@@ -239,3 +235,24 @@ class Globals(MetaSingleton.Singleton):
             except urllib2.URLError:
                 pass
         return False
+
+    def _download_type(self, dtype):
+        if isinstance(dtype, self.DownloadType):
+            return dict([
+                (v, k,)
+                for (k, v,) in self.DownloadType._value2member_map_.iteritems()
+            ])[dtype]
+        elif isinstance(dtype, int):
+            try:
+                return self.DownloadType._value2member_map_[dtype]
+            except KeyError:
+                self.log.error(
+                    'no available download type with value `{}` ...'.format(
+                        dtype
+                    )
+                )
+        else:
+            self.log.debug(
+                'couldn\'t translate download type `{}` ...'.format(dtype)
+            )
+        return None
