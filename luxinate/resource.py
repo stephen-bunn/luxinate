@@ -42,7 +42,6 @@ class ResourceManager(
 
     def __init__(self, delay=432000):
         self.delay = delay
-        self._cocoa_client = self._global.ab.wrapper('cocoadialog')
         self.resource_path = os.path.join(
             self._global.ab.workflow_data, 'resources'
         )
@@ -119,7 +118,7 @@ class ResourceManager(
                         self.log.debug('`{}` requires update ...'.format(name))
                         updatable_resources.append(name)
             if len(updatable_resources) > 0:
-                resp = self._cocoa_client.msgbox(
+                resp = self._global.cd_client.msgbox(
                     title=self._global.module_name,
                     text=(
                         'Updates are available for {} resource{}'
