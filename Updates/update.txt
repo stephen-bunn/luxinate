@@ -1,1 +1,0 @@
-{'version’:’7.0.1’,’black':'http://cl.ly/3w1O121C0A2w','white':'http://cl.ly/3w1O121C0A2w'}
