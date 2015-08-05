@@ -26,9 +26,10 @@ from utils import MetaSingleton, MetaSerializable, MetaLogged, MetaGlobalAccess
 import exceptions
 import settings
 import history
-import model
 import download
 import convert
+import embed
+import model
 
 
 class AbstractHandler(
@@ -67,6 +68,7 @@ class ModelHandler(AbstractHandler):
         self.history = history.History()
         self.downloader = download.Downloader()
         self.converter = convert.Converter()
+        self.embedder = embed.Embedder()
         self._download_methods = {
             True: {
                 self._global.DownloadType.video: self._video_multi,
@@ -93,11 +95,15 @@ class ModelHandler(AbstractHandler):
             'mod': self.mod,
             '_download_methods': self._download_methods,
             'downloader': self.downloader,
-            'converter': self.converter
+            'converter': self.converter,
+            'embedder': self.embedder
         }
 
     def _video_single(self):
-        self.downloader.download(self.mod, progress_bar=self.progress_bar)
+        self.mod.embeddable.append(
+            self.downloader.download(self.mod, progress_bar=self.progress_bar)
+        )
+        self.embedder.embed(self.mod, progress_bar=self.progress_bar)
 
     def _audio_single(self):
         requires_convert = self.mod.info['ext'] not in \
@@ -109,29 +115,37 @@ class ModelHandler(AbstractHandler):
                         suffix=self._global.temp_storage_suffix
                     )
                 ),
-                os.path.basename(self.mod.render_outtmpl())
+                os.path.basename(self.mod.outtmpl)
             ) if requires_convert else self.mod.outtmpl
         )
         self.mod.outtmpl = tempstore
-        self.downloader.download(self.mod, progress_bar=self.progress_bar)
+        self.mod.embeddable.insert(
+            0,
+            self.downloader.download(self.mod, progress_bar=self.progress_bar)
+        )
+
         if requires_convert:
-            converted = self.converter.convert(
-                self.mod,
-                progress_bar=self.progress_bar
-            )
-            [
-                shutil.move(
-                    i,
-                    os.path.join(
-                        self.settings['save_to'], os.path.basename(i)
-                    )
-                ) for i in converted
-            ]
+            del self.mod.embeddable[0]
+            self.converter.convert(self.mod, progress_bar=self.progress_bar)
+
+            self.mod.info['ext'] = self.settings['audio_format']
+            shutil.move(self.mod.outtmpl_rendered, self.mod._outtmpl_rendered)
+            print self.mod.outtmpl_rendered, self.mod._outtmpl_rendered
+            self.mod.embeddable.append(self.mod._outtmpl_rendered)
+
             shutil.rmtree(os.path.dirname(tempstore))
 
+        print self.mod.embeddable
+        self.embedder.embed(self.mod, progress_bar=self.progress_bar)
+
     def _combi_single(self):
-        self.downloader.download(self.mod, progress_bar=self.progress_bar)
-        self.converter.convert(self.mod, progress_bar=self.progress_bar)
+        self.mod.embeddable.append(
+            self.downloader.download(self.mod, progress_bar=self.progress_bar)
+        )
+        self.mod.embeddable.extend(
+            self.converter.convert(self.mod, progress_bar=self.progress_bar)
+        )
+        self.embedder.embed(self.mod, progress_bar=self.progress_bar)
 
     def _video_multi(self):
         pass

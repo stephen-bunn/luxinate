@@ -27,6 +27,8 @@ from settings import Settings
 from history import History
 from convert import Converter
 
+import youtube_dl
+
 
 class Downloader(
     MetaSingleton.Singleton, MetaSerializable.Serializable,
@@ -40,14 +42,6 @@ class Downloader(
                 '{name} requires client to have initialized '
                 'alfred-bundler attribute'
             ).format(name=self.__class__.__name__))
-        try:
-            import youtube_dl
-            self.yt = youtube_dl
-        except ImportError:
-            raise exceptions.LuxinateRequirementException((
-                '{name} requires the youtube-dl module '
-                'to be successfully imported, failed'
-            ).format(name=self.__class__.__name__))
         self.settings = Settings().settings
         self.history = History()
         self.converter = Converter()
@@ -56,18 +50,13 @@ class Downloader(
         return {}
 
     def download(self, mod, progress_bar=None):
+        self.log.info('downloading {mod} ...'.format(mod=mod))
         yt_options = {
             'format': 'best',
             'logger': None,
             'outtmpl': mod.outtmpl,
             'progress_hooks': []
         }
-        self.log.info(
-            'downloading {mod} to `{outtmpl}` ...'.format(
-                mod=mod,
-                outtmpl=yt_options['outtmpl']
-            )
-        )
 
         def _download_progress_hook(info, progress_bar=progress_bar):
             if progress_bar and info['status'].lower() == 'downloading':
@@ -81,5 +70,6 @@ class Downloader(
 
         if progress_bar:
             yt_options['progress_hooks'].append(_download_progress_hook)
-        with mod.yt.YoutubeDL(yt_options) as ydl:
+        with youtube_dl.YoutubeDL(yt_options) as ydl:
             ydl.download([mod.info['webpage_url']])
+        return mod.outtmpl_rendered

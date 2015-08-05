@@ -108,7 +108,6 @@ class History(
                     icon=self._global.icons['delete']
                 )
                 for entry in sorted(entries, key=lambda x: x['downloaded']):
-                    self.log.info(entry)
                     _filter.add(
                         title=entry['title'],
                         subtitle=entry['uploader'],

@@ -44,6 +44,7 @@ class Converter(
         }
 
     def convert(self, mod, progress_bar=None):
+        self.log.info('applying conversion to {mod}'.format(mod=mod))
         retn = []
         cmd = [
             self.ffmpeg,
@@ -52,7 +53,7 @@ class Converter(
             '-ab', self.settings['audio_bitrate'],
             '{new}'
         ]
-        paths = [mod.render_outtmpl()]
+        paths = [mod.outtmpl_rendered]
         for i in paths:
             new = '{origbase}.{ext}'.format(
                 origbase=os.path.splitext(i)[0],

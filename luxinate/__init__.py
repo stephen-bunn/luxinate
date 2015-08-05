@@ -22,4 +22,6 @@ from history import History
 
 from model import Model
 from handler import ModelHandler
+from download import Downloader
 from convert import Converter
+from embed import Embedder

@@ -24,21 +24,22 @@ import socket
 import urllib2
 
 from utils import MetaLogged, MetaGlobalAccess
+import service
+__ab__ = service.AlfredBundlerService().service
+
 import settings
 import history
-import service
 import resource
 import handler
 import model
 
 
 class Client(MetaLogged.Logged, MetaGlobalAccess.GlobalAccess):
-    _ab = service.AlfredBundlerService().service
 
     def __init__(self):
-        self._global.log = self._ab.logger(self.__class__.__name__)
+        self._global.log = __ab__.logger(self.__class__.__name__)
         if not hasattr(self._global, 'ab'):
-            setattr(self._global, 'ab', self._ab)
+            setattr(self._global, 'ab', __ab__)
         self.log.debug(
             'initializing `{}` for `{}` ...'.format(
                 self.__class__.__name__,

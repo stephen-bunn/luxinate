@@ -22,6 +22,8 @@ from utils import MetaSerializable, MetaLogged, MetaGlobalAccess
 import exceptions
 import settings
 
+import youtube_dl
+
 
 class Model(
     MetaSerializable.Serializable,
@@ -35,14 +37,6 @@ class Model(
                 '{name} requires client to have initialized '
                 'alfred-bundler attribute'
             ).format(name=self.__class__.__name__))
-        try:
-            import youtube_dl
-            self.yt = youtube_dl
-        except ImportError:
-            raise exceptions.LuxinateRequirementException((
-                '{name} requires the youtube-dl module '
-                'to be successfully imported, failed'
-            ).format(name=self.__class__.__name__))
         self.settings = settings.Settings().settings
 
         self.info = info
@@ -51,6 +45,8 @@ class Model(
         self.outtmpl = os.path.join(
             self.settings['save_to'], self.settings['outtmpl']
         )
+        self._outtmpl = self.outtmpl
+        self.embeddable = []
 
         if not self.info or not isinstance(self.info, dict):
             if not self.url or not isinstance(self.url, basestring):
@@ -64,8 +60,7 @@ class Model(
                     '{name} couldn\'t successfully fetch resource '
                     '"{url}"'
                 ).format(name=self.__class__.__name__, url=self.url))
-
-            self.info = self.yt.YoutubeDL({
+            self.info = youtube_dl.YoutubeDL({
                 'logtostderr': True,
                 'extract_flat': True
             }).extract_info(self.url, download=False)
@@ -99,10 +94,18 @@ class Model(
             'download_type': self.download_type
         }
 
-    def render_outtmpl(self):
+    @property
+    def outtmpl_rendered(self):
         if self.info and isinstance(self.info, dict):
             return self.outtmpl % self.info
-        else:
-            self.log.error(
-                'error rendering {mod} outtmpl ...'.format(mod=self)
-            )
+        return None
+
+    @property
+    def _outtmpl_rendered(self):
+        if self.info and isinstance(self.info, dict):
+            return self._outtmpl % self.info
+        return None
+
+    @property
+    def downloaded(self):
+        return os.path.exists(self.outtmpl_rendered)

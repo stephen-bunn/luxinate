@@ -123,6 +123,11 @@ class Globals(MetaSingleton.Singleton):
         'vox', 'wav', 'wma', 'wv', 'webm'
     ]
 
+    # embedder variable globals
+    default_download_comment = 'Downloaded using {}v{} by {}'.format(
+        module_name, module_version_string, author_name
+    )
+
     # connection information
     http_test_connection = 'http://www.google.com'
     http_test_timeout = 1
