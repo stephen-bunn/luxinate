@@ -46,35 +46,31 @@ class AbstractTagEmbedder(
 
 
 class MP3TagEmbedder(AbstractTagEmbedder):
-    _extension = '.mp3'
+    _extension = 'mp3'
     _tags = {
-        'title': (basestring,),
-        'artist': (basestring,),
-        'album': (basestring,),
-        'year': (basestring,),
-        'comment': (basestring,),
-        'track': (basestring,),
-        'genre': (basestring,),
-        'artwork': (basestring,),
+        'title': mutagen.id3.TIT2,
+        'artist': mutagen.id3.TPE1,
+        'comment': mutagen.id3.COMM,
+        'url': mutagen.id3.LINK,
+        'artwork': mutagen.id3.APIC,
     }
     _artwork_mimetypes = {
-        '.jpeg': 'image/jpeg',
-        '.jpg': 'image/jpeg',
-        '.png': 'image/png'
+        'jpeg': 'image/jpeg',
+        'jpg': 'image/jpeg',
+        'png': 'image/png'
     }
 
     def __init__(self, path):
-        self.path = path
-        if os.path.splitext(self.path)[-1].lower() == self.extension:
+        (self.path, self.mutate,) = (path, None,)
+        if os.path.splitext(self.path)[-1][1:].lower() == self.extension:
             self.mutate = mutagen.mp3.MP3(
                 self.path,
-                ID3=mutagen.easyid3.EasyID3
+                ID3=mutagen.id3.ID3
             )
         else:
-            raise ValueError(
-                'unrecognized path `{path}` for `{ext}` embed'.format(
-                    name=self.__class__.__name__,
-                    mod=self.path,
+            self.log.error(
+                'unrecognized file `{path}` for `{ext}` embed ...'.format(
+                    path=self.path,
                     ext=self.extension
                 )
             )
@@ -84,7 +80,14 @@ class MP3TagEmbedder(AbstractTagEmbedder):
         return self._extension
 
     def tag(self, **kwargs):
-        if not self.mutate.tags:
+        if hasattr(self, 'mutate') and self.mutate is not None:
+            if self.mutate.tags:
+                self.log.debug(
+                    'removing present id3 tags from `{path}` ...'.format(
+                        path=self.path
+                    )
+                )
+                self.mutate.delete()
             try:
                 self.log.debug(
                     'adding id3 tags to `{path}` ...'.format(path=self.path)
@@ -99,66 +102,76 @@ class MP3TagEmbedder(AbstractTagEmbedder):
                     )
                 ))
 
-        if not set(kwargs.keys()) <= set(self._tags.keys()):
-            for (k, v,) in kwargs.items():
-                if k not in self._tags.keys():
-                    self.log.debug((
-                        'encountered invalid id3 tag `{k}`, '
-                        'removing ...'
-                    ).format(k=k))
-                    del kwargs[k]
+            for (k, v,) in kwargs.iteritems():
+                k = k.lower()
+                if k in self._tags.keys():
+                    if v:
 
-        self.mutate.tags.update([
-            (k, v,)
-            for (k, v,) in kwargs.iteritems()
-            if k != 'artwork'
-        ])
-        self.mutate.save()
+                        if k == 'artwork' and isinstance(v, basestring):
+                            (mimetype, artwork,) = (None,) * 2
+                            try:
+                                mimetype = \
+                                    self._artwork_mimetypes[
+                                        os.path.splitext(v)[-1][1:].lower()
+                                    ]
+                            except KeyError:
+                                self.log.error((
+                                    'unsupported artwork mimetype for artwork '
+                                    '`{v}` ...'
+                                ).format(v=v))
+                                continue
+                            if not os.path.exists(v):
+                                self.log.debug((
+                                    'evaluating artwork `{v}` as '
+                                    'url path ...'
+                                ).format(v=v))
+                                try:
+                                    artwork = urllib2.urlopen(v).read()
+                                except urllib2.URLError:
+                                    self.log.error((
+                                        'could not read artwork from resource '
+                                        '`{v}` ...'
+                                    ).format(v=v))
+                                    continue
+                            else:
+                                artwork = open(v, 'rb').read()
+                            if artwork is not None:
+                                self.mutate.tags.add(
+                                    self._tags[k](
+                                        encoding=3,
+                                        type=3,
+                                        mime=mimetype,
+                                        desc=v,
+                                        data=artwork
+                                    )
+                                )
 
-        if 'artwork' in kwargs.keys():
-            advmutate = mutagen.mp3.MP3(
-                self.path,
-                ID3=mutagen.id3.ID3
+                        elif k == 'url' and isinstance(v, basestring):
+                            self.mutate.tags.add(
+                                self._tags[k](
+                                    encoding=3,
+                                    url=v
+                                )
+                            )
+
+                        else:
+                            if isinstance(v, basestring):
+                                self.mutate.tags.add(
+                                    self._tags[k](
+                                        encoding=3,
+                                        text=v
+                                    )
+                                )
+
+            self.log.debug('saving passed tags to `{path}` ...'.format(
+                path=self.path
+            ))
+            self.mutate.save(filename=self.path)
+
+        else:
+            self.log.error(
+                'missing `mutagen.mp3` instance `mutate`, ignoring tags ...'
             )
-            if not advmutate.tags:
-                advmutate.add_tags()
-            (mimetype, artwork,) = (None, None,)
-            try:
-                mimetype = \
-                    self._artwork_mimetypes[
-                        os.path.splitext(kwargs['artwork'])[-1].lower()
-                    ]
-            except KeyError:
-                self.log.error(
-                    'unsupported artwork mimetype `{artwork} ...`'.format(
-                        artwork=kwargs['artwork']
-                    )
-                )
-            if mimetype:
-                if not os.path.exists(kwargs['artwork']):
-                    try:
-                        artwork = urllib2.urlopen(kwargs['artwork']).read()
-                    except urllib2.URLError:
-                        raise ValueError((
-                            'couldn\'t find artwork '
-                            'resource `{artwork}`'
-                        ).format(artwork=kwargs['artwork']))
-                else:
-                    artwork = open(kwargs['artwork'], 'rb').read()
-                if artwork:
-                    self.log.debug((
-                        'applying APIC artwork id3 tag to `{path}` ...'
-                    ).format(path=self.path))
-                    advmutate.tags.add(
-                        mutagen.id3.APIC(
-                            encoding=3,
-                            mime=mimetype,
-                            type=3,
-                            desc=kwargs['artwork'],
-                            data=artwork
-                        )
-                    )
-                    advmutate.save()
 
 
 class Embedder(
@@ -174,7 +187,7 @@ class Embedder(
                 'alfred-bundler attribute'
             ).format(name=self.__class__.__name__))
         self.embedders = {
-            '.mp3': MP3TagEmbedder
+            'mp3': MP3TagEmbedder
         }
 
     def __getstate__(self):
@@ -188,20 +201,24 @@ class Embedder(
                     title=mod.info['title']
                 )
             )
+        self.log.info('embedding meta info into {mod} ...'.format(mod=mod))
         for i in mod.embeddable:
             if os.path.exists(i):
                 try:
-                    self.log.info(
-                        'embedding meta info into {mod} ...'.format(mod=mod)
-                    )
-                    self.embedders[os.path.splitext(i)[-1].lower()](i).tag(
+                    self.embedders[os.path.splitext(i)[-1][1:].lower()](i).tag(
                         title=mod.info['title'],
                         artist=mod.info['uploader'],
-                        artwork=mod.info['thumbnail']
+                        url=mod.info['webpage_url'],
+                        artwork=(
+                            mod.info['thumbnail']
+                            if 'thumbnail' in mod.info.keys() else
+                            None
+                        ),
+                        comment=self._global.default_comment,
                     )
                 except KeyError:
                     self.log.warning(
                         'embedder for extension `{ext}` not found ...'.format(
-                            ext=os.path.splitext(i)[-1].lower()
+                            ext=os.path.splitext(i)[-1][1:].lower()
                         )
                     )

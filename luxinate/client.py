@@ -23,14 +23,13 @@ import ast
 import socket
 import urllib2
 
-from utils import MetaLogged, MetaGlobalAccess
 import service
 __ab__ = service.AlfredBundlerService().service
 
+from utils import MetaLogged, MetaGlobalAccess
 import settings
 import history
 import resource
-import handler
 import model
 
 
@@ -68,7 +67,7 @@ class Client(MetaLogged.Logged, MetaGlobalAccess.GlobalAccess):
         self._history = history.History()
 
     def handle(self, info):
-        handler.ModelHandler(model.Model(info=info)).handle()
+        model.LuxinateModel(None, info=info).handle()
 
     def settings(self):
         return self._settings.scriptfilter()

@@ -20,7 +20,6 @@ from client import Client
 from settings import Settings
 from history import History
 
-from model import Model
 from handler import ModelHandler
 from download import Downloader
 from convert import Converter

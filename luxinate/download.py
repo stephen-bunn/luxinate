@@ -23,9 +23,8 @@ import shutil
 import tempfile
 
 from utils import MetaSingleton, MetaSerializable, MetaLogged, MetaGlobalAccess
-from settings import Settings
-from history import History
-from convert import Converter
+import settings
+import history
 
 import youtube_dl
 
@@ -37,14 +36,8 @@ class Downloader(
 ):
 
     def __init__(self):
-        if not hasattr(self._global, 'ab'):
-            raise exceptions.LuxinateImplementationException((
-                '{name} requires client to have initialized '
-                'alfred-bundler attribute'
-            ).format(name=self.__class__.__name__))
-        self.settings = Settings().settings
-        self.history = History()
-        self.converter = Converter()
+        self.settings = settings.Settings().settings
+        self.history = history.History()
 
     def __getstate__(self):
         return {}
@@ -54,7 +47,7 @@ class Downloader(
         yt_options = {
             'format': 'best',
             'logger': None,
-            'outtmpl': mod.outtmpl,
+            'outtmpl': mod.outtmpl_storage,
             'progress_hooks': []
         }
 
@@ -64,12 +57,26 @@ class Downloader(
                     percent=float(info['_percent_str'][:-1]),
                     text='【ETA {eta}】{title}'.format(
                         eta=info['_eta_str'],
-                        title=os.path.basename(mod.info['title'])
+                        title=mod.info['title']
                     )
                 )
 
         if progress_bar:
             yt_options['progress_hooks'].append(_download_progress_hook)
-        with youtube_dl.YoutubeDL(yt_options) as ydl:
-            ydl.download([mod.info['webpage_url']])
-        return mod.outtmpl_rendered
+        try:
+            with youtube_dl.YoutubeDL(yt_options) as ydl:
+                ydl.download([mod.info['webpage_url']])
+            return [
+                os.path.join(os.path.dirname(mod.outtmpl_storage), i)
+                for i in os.listdir(os.path.dirname(mod.outtmpl_storage))
+            ]
+        except Exception, err:
+            self._global.cd_client.ok_msgbox(
+                title='{} Error'.format(self._global.module_name),
+                text='Sorry, an unexpected error occured during download...',
+                informative_text=err.message,
+                no_cancel=True,
+                icon='caution',
+            )
+            # TODO: May need some global cleaning methods???
+            raise SystemExit()

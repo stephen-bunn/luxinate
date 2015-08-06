@@ -23,6 +23,7 @@ import json
 import webbrowser
 
 from utils import MetaSingleton, MetaSerializable, MetaLogged, MetaGlobalAccess
+import exceptions
 
 
 class Settings(
@@ -32,6 +33,11 @@ class Settings(
 ):
 
     def __init__(self):
+        if not hasattr(self._global, 'ab'):
+            raise exceptions.LuxinateImplementationException((
+                '{name} requires client to have initialized '
+                '`ab` attribute'
+            ).format(name=self.__class__.__name__))
         self.storage = os.path.join(
             self._global.ab.workflow_data, 'settings.json'
         )

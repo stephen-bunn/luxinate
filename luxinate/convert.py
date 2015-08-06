@@ -53,8 +53,7 @@ class Converter(
             '-ab', self.settings['audio_bitrate'],
             '{new}'
         ]
-        paths = [mod.outtmpl_rendered]
-        for i in paths:
+        for i in mod.convertable:
             new = '{origbase}.{ext}'.format(
                 origbase=os.path.splitext(i)[0],
                 ext=self.settings['audio_format']

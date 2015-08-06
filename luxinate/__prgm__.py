@@ -52,13 +52,6 @@ class Globals(MetaSingleton.Singleton):
     base_path = os.path.dirname(os.path.abspath(os.path.realpath(__file__)))
     base_name = os.path.basename(base_path)
     outer_base_path = os.path.dirname(base_path)
-    # workflow_storage = os.path.abspath(
-    #     os.path.expanduser(
-    #         '~/Library/Application Support/Alfred 2/Workflow Data/{}'.format(
-    #             module_bundle
-    #         )
-    #     )
-    # )
 
     # dynamic paths (may exist or not), required for valid operation
     storage_path = os.path.join(outer_base_path, 'storage')
@@ -105,14 +98,23 @@ class Globals(MetaSingleton.Singleton):
     }
     history_mod_item_blacklist = ['requested_formats', 'formats']
 
-    # downloader variable globals
+    # type variable globals
+    class MediaType(enum.Enum):
+        video = 0xf1
+        audio = 0xf2
+
     class DownloadType(enum.Enum):
         video = 0x01
         audio = 0x02
         combi = 0x04
 
+    class ConvertType(enum.Enum):
+        video2audio = 0x11
+        audio2audio = 0x12
+
     # converter variable globals
     ffmpeg_progress_read_time_buffer = 0.05
+    ffmpeg_progress_exit_time_buffer = 1
     ffmpeg_duration_regex = ur'(Duration: [0-9:.]*)'
     ffmpeg_current_regex = ur'(time=[0-9:.]*)'
     ffmpeg_ending_regex = ur'video:(.?)'
@@ -120,11 +122,11 @@ class Globals(MetaSingleton.Singleton):
         '3gp', 'act', 'aiff', 'aac', 'amr', 'ape', 'au', 'awb', 'dct', 'dss',
         'dvf', 'flac', 'gsm', 'iklax', 'ivs', 'm4a', 'm4p', 'mmf', 'mp3',
         'mpc', 'msv', 'ogg', 'oga', 'opus', 'ra', 'rm', 'raw', 'sln', 'tta',
-        'vox', 'wav', 'wma', 'wv', 'webm'
+        'vox', 'wav', 'wma', 'wv'
     ]
 
     # embedder variable globals
-    default_download_comment = 'Downloaded using {}v{} by {}'.format(
+    default_comment = 'Downloaded using {}v{} by {}'.format(
         module_name, module_version_string, author_name
     )
 
