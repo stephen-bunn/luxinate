@@ -17,6 +17,7 @@ download
 """
 
 import os
+import sys
 import ast
 import time
 import shutil
@@ -78,5 +79,4 @@ class Downloader(
                 no_cancel=True,
                 icon='caution',
             )
-            # TODO: May need some global cleaning methods???
-            raise SystemExit()
+            sys.exit(1)

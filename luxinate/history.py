@@ -94,19 +94,19 @@ class History(
                     entries.append(entry)
             else:
                 entries.append(entry)
-        if len(self.history['items']) > 0:
+        if self.history['count'] > 0:
+            _filter.add(
+                title='Clear History',
+                subtitle='Remove all {} history entries'.format(
+                    len(entries)
+                ),
+                arg=unicode({
+                    'action': 'clear',
+                    'entries': [i['display_id'] for i in entries]
+                }),
+                icon=self._global.icons['delete']
+            )
             if len(entries) > 0:
-                _filter.add(
-                    title='Clear History',
-                    subtitle='Remove all {} history entries'.format(
-                        len(entries)
-                    ),
-                    arg=unicode({
-                        'action': 'clear',
-                        'entries': [i['display_id'] for i in entries]
-                    }),
-                    icon=self._global.icons['delete']
-                )
                 for entry in sorted(entries, key=lambda x: x['downloaded']):
                     _filter.add(
                         title=entry['title'],

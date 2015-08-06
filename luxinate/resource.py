@@ -207,7 +207,9 @@ class AbstractResource(
 
 class FFMpegResource(AbstractResource):
     _applescript = applescript_dialog.AppleScriptDialog(debug=True)
-    _host = 'http://ffmpegmac.net/'
+
+    def __init__(self):
+        self._host = self._global.ffmpeg_binary_host
 
     @property
     def storage(self):

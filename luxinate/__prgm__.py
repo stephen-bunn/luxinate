@@ -113,6 +113,7 @@ class Globals(MetaSingleton.Singleton):
         audio2audio = 0x12
 
     # converter variable globals
+    ffmpeg_binary_host = 'http://ffmpegmac.net/'
     ffmpeg_progress_read_time_buffer = 0.05
     ffmpeg_progress_exit_time_buffer = 1
     ffmpeg_duration_regex = ur'(Duration: [0-9:.]*)'
